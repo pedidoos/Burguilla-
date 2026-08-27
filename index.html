@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burguila - Cardápio Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Importação do Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@300;400;700&family=Yellowtail&display=swap');
+        body { background-color: #000; color: white; font-family: 'Roboto', sans-serif; }
+        .header-title { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        .cursive { font-family: 'Yellowtail', cursive; color: #d4af37; }
+        .card-bg { background: linear-gradient(145deg, #141411, #080806); border: 1px solid #2e2a20; }
+        .btn-primary { background-color: #b8860b; color: white; transition: all 0.2s ease; }
+        .btn-primary:hover { background-color: #a0750a; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: #fbbf24; color: black; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+        .menu-section { border-left: 4px solid #d4af37; padding-left: 15px; margin-bottom: 25px; }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+        .adicional-item { border-bottom: 1px solid #1c1a16; padding: 12px 0; }
+        .adicional-item:last-child { border-bottom: none; }
+        
+        /* Estilo do Slider */
+        .swiper { width: 100%; padding-top: 10px; padding-bottom: 20px; }
+        .swiper-slide { background-position: center; background-size: cover; width: 240px; }
+    </style>
+</head>
+<body class="pb-32">
+
+    <!-- Header -->
+    <header class="w-full max-w-2xl mx-auto overflow-hidden border-b border-zinc-900">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbZ3d3MvLcj_s3uy68HQPr-LeUb5AIMKF7GS71hLSU1wy0mN2PBogGXGT5xflmZ2811ioCYktSSGRYL3TnMkB_bpv_BBd6Y1UOdUSawLjUPQ-Uv8XV0n4FZv2VM480P60UB-RXKfzT2opWAAN7PGRzkCQZQA_Dirkpf-oftRUeziu0trIb33dT9_m-aGw/s1600/Untitled%20design.jpeg" alt="Burguila Topo" class="w-full h-auto object-cover block">
+    </header>
+
+    <!-- Slider de Hambúrgueres -->
+    <div class="max-w-2xl mx-auto px-4 mt-2">
+        <div class="swiper burgerSlider">
+            <div class="swiper-wrapper" id="slider-content"></div>
+        </div>
+    </div>
+
+    <main class="max-w-2xl mx-auto px-4 mt-4">
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Hamburgueres</h2>
+            </div>
+            <div id="burgers-list" class="space-y-4"></div>
+        </section>
+
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Porções</h2>
+            </div>
+            <div id="porcoes-list" class="space-y-4"></div>
+        </section>
+
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Sobremesas</h2>
+            </div>
+            <div id="sobremesas-list" class="space-y-4"></div>
+        </section>
+
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Refrigerantes em Lata</h2>
+            </div>
+            <div id="latas-list" class="space-y-4"></div>
+        </section>
+
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Refrigerantes 1 Litro</h2>
+            </div>
+            <div id="litros-list" class="space-y-4"></div>
+        </section>
+
+        <section class="mb-12">
+            <div class="menu-section">
+                <h2 class="cursive text-4xl">Sucos Naturais</h2>
+            </div>
+            <div id="sucos-list" class="space-y-4"></div>
+        </section>
+    </main>
+
+    <footer class="text-center text-zinc-600 text-xs py-6 border-t border-zinc-900 mt-12 max-w-2xl mx-auto px-4">
+        <p>Burguila • Todos os direitos reservados por <span class="text-amber-500/70 font-medium">@maxwellber_63</span></p>
+    </footer>
+
+    <div id="cart-footer-bar" class="fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-zinc-800 z-40 hidden">
+        <button onclick="toggleModal('cart-modal')" class="btn-primary w-full max-w-2xl mx-auto py-4 rounded-xl font-black flex items-center justify-center gap-4 shadow-lg text-white">
+            <div class="relative">
+                <i class="fa-solid fa-cart-shopping text-xl"></i>
+                <span id="cart-count" class="cart-badge">0</span>
+            </div>
+            VER CARRINHO • <span id="cart-total-footer">R$ 0,00</span>
+        </button>
+    </div>
+
+    <!-- Modal de Produto -->
+    <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden overflow-y-auto">
+        <div class="min-h-screen flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="w-full sm:max-w-xl bg-zinc-950 rounded-t-3xl sm:rounded-3xl border border-zinc-800 overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]">
+                
+                <div class="relative p-6 border-b border-zinc-900 bg-zinc-900/50 flex justify-between items-start">
+                    <div class="pr-8">
+                        <h2 id="modal-burger-name" class="text-2xl font-bold header-title text-amber-400"></h2>
+                        <span id="modal-burger-badge" class="text-xs font-bold italic text-amber-500 block mt-1"></span>
+                        <p id="modal-burger-desc" class="text-zinc-300 text-sm mt-2 leading-relaxed"></p>
+                    </div>
+                    <button onclick="closeProductModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                    <div id="modal-burger-img-container" class="h-56 w-full rounded-2xl overflow-hidden border border-zinc-800 relative bg-black flex items-center justify-center">
+                        <img id="modal-burger-img" src="" alt="Hambúrguer" class="w-full h-full object-contain">
+                    </div>
+
+                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+                        <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">1. Deseja transformar em Combo?</p>
+                        <label class="flex items-center justify-between cursor-pointer p-2 bg-black/40 rounded-lg border border-zinc-900">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="modal-combo" onchange="toggleComboOptions()" class="w-5 h-5 accent-amber-500 rounded">
+                                <div>
+                                    <span class="font-bold text-sm text-yellow-500">Adicionar Combo (+ R$ 10,00)</span>
+                                    <p class="text-[11px] text-zinc-500">Acompanha Batata Frita + Refrigerante Lata</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <div id="combo-drink-select" class="mt-3 hidden pt-3 border-t border-zinc-800/60">
+                            <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Escolha o Refrigerante do Combo:</label>
+                            <select id="modal-combo-refri" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none">
+                                <option value="Coca Cola Sabor Original Lata">Coca Cola Sabor Original Lata</option>
+                                <option value="Coca Cola Zero Lata">Coca Cola Zero Lata</option>
+                                <option value="Guaraná Antarctica Lata">Guaraná Antarctica Lata</option>
+                                <option value="Guaraná Antarctica Zero Lata">Guaraná Antarctica Zero Lata</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+                        <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">2. Escolha seu Molho (Obrigatório) *</label>
+                        <select id="modal-sauce" class="w-full bg-black border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none">
+                            <option value="" disabled selected>Selecione um molho...</option>
+                            <option value="Molho de Alho">Molho de Alho</option>
+                            <option value="Molho Barbecue">Molho Barbecue</option>
+                            <option value="Sem Molho">Não quero molho</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+                        <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">3. Observações / Retiradas (Opcional)</label>
+                        <p class="text-[11px] text-zinc-500 mb-2">Ex: "Retirar a cebola", "Sem tomate", etc.</p>
+                        <textarea id="modal-obs" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white h-20 resize-none outline-none" placeholder="Digite aqui se deseja retirar algo..."></textarea>
+                    </div>
+
+                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
+                        <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">4. Adicionais Extra? (Opcional)</p>
+                        <div id="modal-adicionais-list" class="space-y-1"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-zinc-900 border-t border-zinc-800 flex gap-3 items-center">
+                    <button id="modal-submit-btn" onclick="confirmBurgerAddition()" class="w-full btn-primary py-4 rounded-xl font-black uppercase text-sm tracking-wide flex justify-between items-center px-6 shadow-lg text-white">
+                        <span>Adicionar ao carrinho</span>
+                        <span id="modal-total-price" class="text-yellow-400">R$ 0,00</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal do Carrinho -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-50 hidden overflow-y-auto">
+        <div class="min-h-screen p-4">
+            <div class="max-w-lg mx-auto w-full bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
+                <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
+                    <h2 class="text-2xl font-bold header-title">Seu Pedido</h2>
+                    <button onclick="toggleModal('cart-modal')"><i class="fa-solid fa-xmark text-2xl text-zinc-500"></i></button>
+                </div>
+                <div id="cart-items" class="space-y-4 mb-8"></div>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 mb-2">PAGAMENTO</label>
+                        <select id="payment-method" onchange="toggleTroco()" class="w-full bg-zinc-800 p-4 rounded-xl text-white outline-none">
+                            <option value="Pix">Pix</option>
+                            <option value="Cartão">Cartão</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div id="troco-box" class="hidden">
+                        <label class="block text-xs font-bold text-zinc-500 mb-2">TROCO PARA QUANTO?</label>
+                        <input type="number" id="troco-valor" class="w-full bg-zinc-800 p-4 rounded-xl text-white" placeholder="Ex: 100">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 mb-2">SEU NOME (PARA IDENTIFICAÇÃO)</label>
+                        <input type="text" id="client-name" class="w-full bg-zinc-800 p-4 rounded-xl text-white outline-none" placeholder="Ex: João">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 mb-2">ENDEREÇO DE ENTREGA</label>
+                        <textarea id="address" class="w-full bg-zinc-800 p-4 rounded-xl text-white h-24 resize-none" placeholder="Rua, Número, Bairro..."></textarea>
+                    </div>
+                    <div class="flex justify-between items-center pt-4">
+                        <span class="text-xl font-bold">TOTAL:</span>
+                        <span id="total-final" class="text-3xl font-black text-amber-400">R$ 0,00</span>
+                    </div>
+                    <a id="btn-finalizar" href="#" target="_blank" onclick="return validarPedido(event)" class="w-full bg-green-600 py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition hover:bg-green-700 text-white">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i> FINALIZAR NO WHATSAPP
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        const menu = {
+            burgers: [
+                { id: 1, name: "1° Burgue Flash", desc: "Pão brioche, hambúrguer 130g e queijo mussarela", badge: "Rápido E Delicioso!", price: 20, comboPrice: 30, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg89ahCZq6y01LvMGYM-thfs93-OaMu8Z0iHvHHgKX1naFu5zc0J9kYgjKVdH4apDziO1TK8CC8Lv0ZWz0086ZGdU2aKj7WlGZmk4Z9rS_wXFF-SNpbvksWTMtFStW_oFCyq7gEDujGVQ5ZOnteWwhvBiu_2a8ctkc4CImn7-JcXTn_7h-rUFQVFoPqht0/s1280/232526.jpg" },
+                { id: 2, name: "2° Burguinho", desc: "Pão brioche, hambúrguer 130g, queijo mussarela derretido e salada de alface e tomate", badge: "Um Clássico Irresistível!", price: 22, comboPrice: 32, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjznltoRlvWs_YW2BQDRVuTkevNUnSLDn38ND_6h4v16dGM46nSCVp0_i1VtTuYGmi7ZU1Hzmu1ays6v3ZHK2M2aGGSrEBh2BYGITZjGGOWnlMjy6B9h7ynLRkEvMymJafJRYKZgXL0VrS_5H3OwUnjeUIs7nduxFf_OAP2C13xCZK55F-hQElhsYNtTo8/s1280/232519.jpg" },
+                { id: 3, name: "3° Burgue Especial", desc: "Pão brioche, hambúrguer 130g, queijo empanado e bacon", badge: "Feito especialmente para você!", price: 27, comboPrice: 37, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgYKG2sP90m-GVHw2MoiLfpZNegdQ03L7nXEd2Z0ur78pPLpnxNja6ItOdaWXISdG2X7BTQDhQMou6iOscD-b04bqNK8RNhiAvHLYrbVmKVa6b0CTZhAEG3ShwX5VV2D7c9B74G27ZaVCpWYGl8g-7k2GbIXufTTzoo6UmiHvJTI8v5bJ_70WzBQQP3EAs/s1242/232521.jpg" },
+                { id: 4, name: "4° Nanaburgue", desc: "Pão brioche, hambúrguer 130g, queijo mussarela, banana-da-terra, bacon, alface e tomate", badge: "Doce, salgado e perfeitamente equilibrado!", price: 28, comboPrice: 38, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiRkmz6Y2aW9GnJQ65nDra3lt1M7F_Qetb8tTFjRqXG7KrsrdCNsQftCRsryTZdqHImTqu3KMBszXpdDPZ6hlqW7MBLepUAEhTE4MS3MmhdoyZ_yO1FQ9FD0ZVW4oHDQ1OlY6kRSbfuS18t4vvauAjrLHm5sMKpyBY6ZWZ7O95L8tcGClU-u2-Lwdls-8o/s1280/232524.jpg" },
+                { id: 5, name: "5° Burgue Duplo", desc: "Pão brioche, 2 hambúrgueres 130g e dobro de queijo mussarela", badge: "Duas vezes o prazer!", price: 32, comboPrice: 42, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhHRPJTUdknlFCGk0slAofU044ON3wcPgLLYGYkcbx2Bakq29WFsq7x7jqzr7IUZ3w3meOIgT-7VprNd6avWPvYfMuWilNEWlQvHGwsk7u2UNiIVPSqqSnYd6tbpn8treLHDHUP8-HbC24kd7iaMtZqNL7WWWs30we0Iiv0uavnZC4cvacZa9Xn3XawxA0/s1280/232517.jpg" },
+                { id: 6, name: "6° B-Burgue", desc: "Pão brioche, hambúrguer 130g, queijo empanado, bacon, ovo e salada de alface e tomate", badge: "Crocância, cremosidade e muito sabor!", price: 34, comboPrice: 44, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggIuA_1lsdCO0uWwvfxp0CxJ-rzMdWI7_DAT7PNREuEaoZHLM4SW4peXCB5ms79-a3GUh3I4Y4Dbr3JMNda3xh3vDPodGgyZ2rbK-cYHQ0LpLXPRFC_Uy81U5uAcfKO2qZhzRU2bYyAdsemiKQN35KLQm9gnKIbJ4t5vTYAb4rWHLkN1Mmn_YGkOgVsYM/s1280/232514.jpg" },
+                { id: 7, name: "7° Burgão", desc: "Pão brioche, hambúrguer 130g, queijo empanado, bacon crocante, ovo e cebola caramelizada", badge: "O rei dos burgers!", price: 35, comboPrice: 45, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhu2H1553PqdAjpj_BFvxLFtxlDhEWXLeel6_HwoUp6btFUjwgQJb-uhoLxvey1YVpjKgETG5gFmG1mcuLsRrhe9dbH5GhxoiyBQmwuJcZn81jQdXSV5oUD7pBqI3SZp-u8pZVdWrebmcRVa-XkTp6MKdEKwPuyPA-VSaXYsYhkjeuBL_eB0a4_pGmHeck/s1280/232508.jpg" },
+                { id: 8, name: "8° Burgue Top", desc: "Pão brioche, 2 hambúrgueres 130g, dobro de cheddar, dobro de bacon, ovo, alface, tomate e cebola roxa", badge: "O melhor de todos!", price: 37, comboPrice: 47, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdaE9B_lzxCQah215GX_EAB_5rXgEsFpGGgvVuzt2x40bIucgMgk0nJPUxqfZnQd_IOde_ZL1O8YEEU0gLNFJWGMnu3C70FpfCY1RrmkXDekwVoS18xj3uBmLZ8sPPjyUXUk4mFtGcuPPgJPOyRsou_7CTO91gk_iF7BrQQWP_HqrurG9RSONV14TcDbI/s1600/232536.jpg" },
+                { id: 9, name: "9° Burguila", desc: "Pão brioche, 2 hambúrgueres 130g, queijo mussarela, queijo cheddar, alface e tomate", badge: "Duplo, suculento e irresistível!", price: 37, comboPrice: 47, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjStQWQ_-OcPKbQ1ae-j5DF7OSJhYt-C_elanGPhqzwte-OddIleggkr4nylEm4w6JoMXznkH4lkX3PehXQy8c-NyqGjHsnZ8CjxJ5fVwG27jc13Y9AjmRN9s40Rz6ORV_HcCGNICfBSq9P8_UsgU8odCf_fWYXU5hjEnHYw4yVbKlDDxBmiZfizuRectQ/s1280/232511.jpg" },
+                { id: 10, name: "10° Burgue Faminto", desc: "Pão brioche, 3 hambúrgueres 130g, queijo empanado, cheddar e bacon", badge: "Força máxima para matar a fome!", price: 47, comboPrice: 57, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhktEoXYLWiVR-ZttPjUKF9c6D2geG2YevjYuA4BEis63dXfeN5dotf2XMMJak6-JyPOlSDgcpuivPHGrBvFP6varrQHeJaUryz1Sr3cD5_0ZsCUNjJGLMQ_EsPSU0j7kL2Lqpty8ui11Q61suijoGhSAXa6WMiDDH1xJQVx8sZf9wVE4jOAdhIldJNznI/s1280/232513.jpg" }
+            ],
+            adicionais: [
+                { id: "carne", name: "Carne", price: 10 },
+                { id: "cheddar", name: "Queijo Cheddar", price: 3 },
+                { id: "mussarela", name: "Queijo Mussarela", price: 3 },
+                { id: "empanado", name: "Queijo Empanado", price: 10 },
+                { id: "ovo", name: "Ovo", price: 2 },
+                { id: "bacon", name: "Bacon", price: 5 },
+                { id: "cebola_caram", name: "Cebola Caramelizada", price: 3 },
+                { id: "molho_alho", name: "Molho de Alho", price: 3 },
+                { id: "molho_bbq", name: "Molho Barbecue", price: 2 },
+                { id: "alface", name: "Alface", price: 1 },
+                { id: "cebola_roxa", name: "Cebola Roxa", price: 1 },
+                { id: "pao", name: "Pão", price: 5 },
+                { id: "banana", name: "Banana da Terra", price: 5 }
+            ],
+            porcoes: [
+                { name: "Batata-Frita (Porção)", price: 6, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjU7azrTyE1Gbs6D8LjDymv_d6tAM599zbEM0a1aEQz6N78lEIBJxFpOCCjwRYadh94TM9nWwAP02WpIXeMIyh1m9sD1CnAaUqKpSljJWubkvdbgd2uhaaN0-8M9QOzfdMuhXRvrvJdWFvLQrHLYEt94zm6HNXvg6eJ2Wx4vmxXkPfIMs2VYZIL9xwhSjA/s1024/233563.png" }
+            ],
+            sobremesas: [
+                { name: "Pudim de leite condensado 130g", price: 12, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhPL3-IENzBsYXEWhyphenhyphenJmz9QutSlMQa_bmM6vi6PcT63f1QjWVYxwnOraOgi1s3qZyHVRXKbdXXX-gLGdUrK_vOgFE9krEi55LCuH3OJWeuHhRfkS4zyDJw3a-r3xukrB38m4Gmkh62-o5M0apwP-lhbsEtNHcWpWgdvr4aXlEpWyhoqguQlXL52p05FjX8/s786/233564.jpg" }
+            ],
+            refrigerantesLata: [
+                { name: "Coca Cola Sabor Original Lata", price: 7, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgSf7aK7WgbPvjONgiCN72JzLHyTd7D9iVbUZyUNN54rvOoOSuSDx5q855UqMnmZvt0C2SwShitjJJFijifS6I5KL1V8bGMnhyno24k4zbJ0p0hze0hyphenhyphenWNRM4NuaVLb_VOd-mPoNWhCl5-6B1u6xUSx4DpXSEGyp0fQCJ4RxNrd3aM8_Et7CT01C38HA_o/s1600/233507.webp" },
+                { name: "Coca Cola Zero Lata", price: 8, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiz_33E1wf9kShIIqcQO6dm8pS69my1O5uiUmdq4kKK81hyphenhyphennTpgYgDwzWw-AcpUVt6CwIoME-u45YJ83DmrLNSNB9ZiguXx284v_oCgjoPEYhfmmrIOSpBiVdcWtSsLPFxhfxmbzeOpsEgPoeENz_-_XSC5lPE5Pse4b-jKNbDz_ZzrR5wZ4boC98ilvOw/s1600/233506.jpg" },
+                { name: "Guaraná Antarctica Lata", price: 6, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzrPDNggCoTWAhShj7eW4gJsSOXpIWZOVnK0qMG7CKFY0dkP-oetyq-3KofJZYLh5FjIYMtou16PgDeYixxEPGNAvGxzL-atemDjFVv_qwWSKicttk-Jw50BCEd3CgZqO4y_0L778esqGKkm_2Gy_zqNAQeLs-Z9gdVsKVTpJhaJWYF8Ncm6qdu8_9xWA/s1600/233508.jpg" },
+                { name: "Guaraná Antarctica Zero Lata", price: 8, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj8dArPawahKYjj2S-I7MZeo2O2rn21ibS71yy-N_Av77NtpoltnBWosI4FkU3h2FbXaGGj_s3WDMFvqQ4RPidKaH25JHe39KUnH3xkxcZ8aihIitbSY_akED20A-iIQeCL2BXB8zl5HebyJ-rwyDA09vjOp-4ON3zTeWxpK7i_7w6jCm100x91SMlTeDE/s1600/233509.webp" }
+            ],
+            refrigerantesLitro: [
+                { name: "Coca Cola Sabor Original 1 Litro", price: 12, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjZyuejI_ZY-Xtheu4bVqHzSLQT4QpDDZZPcLDrB4MoRTgHG4EkYkjaEhOgA7D8UgNPvd32vtWe9ZaNr64YdNedco5OxeilOYEcbJRevTEcJtK1w_wxnTF84uqL_wYuN5wI2OuclVC6XIy3uSI7kPazcXsbsYQmzcZB__bbKYkKjxzqwo7fORsVW3tW5AE/s640/233567.png" },
+                { name: "Coca Cola Zero 1 Litro", price: 12, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuuV-rtv7Ey59tYV9zqWYr7cHZb2x7DadEfcySL4_W7EGU05onDYno2x8-7SI3JAU6aMc1bOdrqfjxxoK6s6l-U8XwEVWoARNcZTdcP9370xNG9k-2wqUVKGC-xFWPer4qrUUJmMcbhGTiYDUeu-Mhq-M9X81PZeWUWBsaAH8dcO3fvSMU4RuCIvk68jk/s1600/233511.jpg" },
+                { name: "Guaraná Antarctica 1 Litro", price: 11, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhpSZGFGQgJGLLewbtTdo7z0UzSujXC_x8xxa2S_SmfYtmrULZpMb9oOl6rAxEtDvS6yHUZe1PwxtGSjCq76llzalvaALpdQDwtclhbZtcXqDOr8q6-wniOBUtFekHVgYRY-unRq4cpTp4gEtmmn1sBoVq-x7j38nnaDvzUiCdvFF-Xe_CUkcQx77v3ncE/s1600/233512.jpg" }
+            ],
+            sucosNaturais: [
+                { name: "Suco Natural Acerola 500ml", price: 10, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjqbUscnwJnjq3Tn7zIBVWsrFDJ93qtiLM34RCgOtWarKwvlcYt-Jbdt_Ixmre8mHnkFPRQpL0EnXYLwGU9T8PMte_yyPR_PTDfQ2-gawhjUwaSMUn-otJ0jhWfARm9H-Zgvsc8n0j4jUel9dplFZQ7GnoLkLE9Z8pWhXH3ycm2HbO3jTlZEop3G8t21_s/s1600/233513.jpg", bgWhite: false },
+                { name: "Suco Natural Cajá 500ml", price: 10, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgPtPEc-YMQW46qCZ3I30bD8oBuMbc434SmH6FkgEND5CBC08Tkc3ygJoW8ttKssF6vSM-LnsQf0OuC3FMX8HX7x4EDVDDOspAttoc2RCaWOytjLc_cRiz8vqkMruPJX_JzDO0FD-OFWBm0W0984VsFywSD1hSQ3qIPz4oP3jGOtOqIjOzsmtSsiqaFkQ8/s180/233566.jpg", bgWhite: false },
+                { name: "Suco Natural Caju 500ml", price: 10, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtOaHI4zv4fpl4mz9ASDw2neRq8bpW0eRw4UYoScQ6vVXHIh2trB_QChvhWgxWvYlc2LTb11TgX3asawJqn-vp_bcl51O_fCquy05FYI1q6Z2n4y1HYRtAzTGIO19OXSmPAKtBsE3l1e19uR-cC9Es3_YpiaoJSAYGPwK-_s5vTnUGp30z3f3LgwJTQ1s/s400/233524.jpg", bgWhite: false },
+                { name: "Suco Natural Goiaba 500ml", price: 10, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiodGsLIxKoRO8-ypVkkwdUEccw8JvIpwTDMYbCevo_rfqhbrINLXBRYYwwIBDoG7ZG_1CK0A0GVzyIKd1wYU7XGwQbhU4y5JRHNnGCL7NmCX7JB4kEabjzk2Vp2d_3DCcOmgxrlcfbp4pBZOHYaj2m0wf1m83yP0sUYemDPZxXsk3UtJ3dhnl1dHx3epg/s512/233525.jpg", bgWhite: false },
+                { name: "Suco Natural Maracujá 500ml", price: 12, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEglNfNkZLkzHKEP-QDjwuzwrfgVRS1Bg95bYoqR7a0SGy9lSLBYrtnlDjvhuL58iDee6atT9QFnJiumCSCRhQIcsoWlmRN5DbNnorJmGAO6B7hLz8MMJ3BKqG1e4nAFuzIpvabixUU_RbSKvJt5oUXDSXRUI6qyP9-Y4Hm1iYs2qVxT4re4xIW7jTJYAQQ/s180/233526.jpg", bgWhite: false },
+                { name: "Suco Natural Acerola 1 Litro", price: 18, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgOpPTOQMaLxcnOwmI9Pq2HzYoEQLDmVTFJ9bI8vwABfimR7XU9OumB8a_FjwoXAu7mN3gzn7-psk3-Bn_AHehCBWjffFC7E3TaA0o1TV5vNs1VySWaLkNwiCrln775_Rt6pElh-91vNFnI1XTRnB_fHeBI5s5g3ELu-bmjOSWWHcZBq6NXF14R7paSrgI/s900/233527.webp", bgWhite: true },
+                { name: "Suco Natural Cajá 1 Litro", price: 18, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgUKCLOpZ0I7ZW1WWdrmofSuLa5B0NhytuU0MHBGRnYYFOZ4DN-UP_KkmoR3PMAQU9XCzSYIGw3Z0QAInKjL_acdUskQ6H3Xooh2VfTFYDYU5cE_laaOwPQuIL59STrySd3fMgiU7d2kVEiAFVh-eQJKl-ZpLNqOvrwt34yX4-hgl136zzzeYjGxBfRhmw/s1098/233553.png", bgWhite: true },
+                { name: "Suco Natural Caju 1 Litro", price: 18, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEie_4ZW_f8uPR5p3DYCC12GDWCkmJ6sABwHuTEH8lvfsFo3WkRf8N68EpDbpszTPr8Qkjn7mi-Z5LxxHH3ezPJaSUaffPndXdNxKw1_OYnNZQ-w52eTJa3e1Q4bJi4gqO4wfYmKxqC9SecPxw5LuaoZv70sD6lMPBZiPgq3TcsYj20V8fljwU65aJh0M_M/s1600/233556.png", bgWhite: true },
+                { name: "Suco Natural Goiaba 1 Litro", price: 18, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhAtvEcKKJt3IefISOPADJZvTftKsC48vcHHrdBWDVDt0VtK6v39wp1ZtCyaJvDXdR45I36pP8fUrd7PcZRf8mtRVxmJt5S7jXwMhrhyphenhyphenp1uAYoMdFsVKbSAYaRZgBTnPWC_VrcqwiFWL2ILiyuHkFQTFl47VsJP9hQ5UT36oambaCul5jD_EVBj8GmZn9I/s1098/233555.png", bgWhite: true },
+                { name: "Suco Natural Maracujá 1 Litro", price: 22, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj5CnFll8LrE0000xX20t-1YPVssR8ih2tCQOAbpXAXatdYrXjREeJnBd9jw22C45NeBpFqjmj67fXzy_K6DShKGRAv8PDfTRbKqlfYiqR94lAh_BTK3xNGSRECjIzHXipAe9VPo7iR9ptVL46fdrwEkPkIdto1tqEqe1SidMuFCNNaUUJ7KEY8vs718Mo/s1098/233554.png", bgWhite: true }
+            ]
+        };
+
+        let cart = [];
+        let currentSelectedBurger = null;
+
+        const slider = document.getElementById('slider-content');
+        menu.burgers.forEach(b => {
+            slider.innerHTML += `
+                <div class="swiper-slide">
+                    <div onclick="openProductModal(${b.id})" class="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 shadow-lg cursor-pointer hover:border-amber-500/50 transition">
+                        <img src="${b.image}" class="w-full h-36 object-cover">
+                        <div class="p-2.5">
+                            <h3 class="font-bold text-amber-400 text-xs truncate">${b.name}</h3>
+                            <p class="text-[10px] text-zinc-400 italic mt-0.5 truncate">"${b.badge}"</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        const swiper = new Swiper('.burgerSlider', {
+            slidesPerView: 2.2,
+            spaceBetween: 12,
+            loop: true,
+            autoplay: { delay: 2500, disableOnInteraction: false },
+        });
+
+        function render() {
+            const bList = document.getElementById('burgers-list');
+            bList.innerHTML = '';
+            menu.burgers.forEach(item => {
+                bList.innerHTML += `
+                    <div onclick="openProductModal(${item.id})" class="card-bg rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:border-amber-500/50 transition">
+                        <div class="flex gap-4 items-start flex-1 w-full">
+                            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-zinc-800 flex-shrink-0">
+                            <div class="flex-1">
+                                <h3 class="font-bold text-lg text-amber-400">${item.name}</h3>
+                                <p class="text-zinc-300 text-xs my-1 leading-relaxed">${item.desc}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t border-zinc-800 sm:border-t-0">
+                            <span class="text-amber-400 text-xs font-bold italic text-center max-w-[150px] sm:max-w-[130px]">
+                                "${item.badge}"
+                            </span>
+                            <div class="text-center bg-zinc-900/80 px-4 py-2 rounded-xl border border-zinc-800 min-w-[80px] flex-shrink-0">
+                                <span class="text-[10px] font-bold text-zinc-500 block uppercase tracking-wider leading-none">A partir de</span>
+                                <span class="text-amber-400 font-black text-xl block mt-0.5 leading-tight">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            const pList = document.getElementById('porcoes-list');
+            pList.innerHTML = '';
+            menu.porcoes.forEach(item => {
+                pList.innerHTML += `
+                    <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            const sList = document.getElementById('sobremesas-list');
+            sList.innerHTML = '';
+            menu.sobremesas.forEach(item => {
+                sList.innerHTML += `
+                    <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            const lataList = document.getElementById('latas-list');
+            lataList.innerHTML = '';
+            menu.refrigerantesLata.forEach(item => {
+                lataList.innerHTML += `
+                    <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            const litroList = document.getElementById('litros-list');
+            litroList.innerHTML = '';
+            menu.refrigerantesLitro.forEach(item => {
+                litroList.innerHTML += `
+                    <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                        </div>
+                    </div>`;
+            });
+
+            const sucoList = document.getElementById('sucos-list');
+            sucoList.innerHTML = '';
+            menu.sucosNaturais.forEach(item => {
+                const bgClass = item.bgWhite ? 'bg-white' : 'bg-black';
+                sucoList.innerHTML += `
+                    <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 ${bgClass} flex items-center justify-center overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-shrink-0">
+                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function openProductModal(id) {
+            const burger = menu.burgers.find(b => b.id === id);
+            currentSelectedBurger = burger;
+
+            document.getElementById('modal-burger-name').innerText = burger.name;
+            document.getElementById('modal-burger-badge').innerText = `"${burger.badge}"`;
+            document.getElementById('modal-burger-desc').innerText = burger.desc;
+            document.getElementById('modal-burger-img').src = burger.image;
+            document.getElementById('modal-combo').checked = false;
+            document.getElementById('combo-drink-select').classList.add('hidden');
+            
+            document.getElementById('modal-sauce').value = "";
+            document.getElementById('modal-obs').value = "";
+
+            const addsContainer = document.getElementById('modal-adicionais-list');
+            addsContainer.innerHTML = '';
+            
+            menu.adicionais.forEach(add => {
+                addsContainer.innerHTML += `
+                    <div class="flex items-center justify-between adicional-item">
+                        <label class="flex items-center gap-3 cursor-pointer text-sm text-zinc-300 w-full py-1">
+                            <input type="checkbox" name="modal-adds" value="${add.id}" data-price="${add.price}" data-name="${add.name}" onchange="updateModalPrice()" class="w-5 h-5 accent-amber-500 rounded">
+                            <span>${add.name}</span>
+                        </label>
+                        <span class="text-xs text-amber-400 font-medium">+ R$ ${add.price.toFixed(2)}</span>
+                    </div>`;
+            });
+
+            updateModalPrice();
+            document.getElementById('product-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function toggleComboOptions() {
+            const isCombo = document.getElementById('modal-combo').checked;
+            const drinkContainer = document.getElementById('combo-drink-select');
+            if (isCombo) {
+                drinkContainer.classList.remove('hidden');
+            } else {
+                drinkContainer.classList.add('hidden');
+            }
+            updateModalPrice();
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            currentSelectedBurger = null;
+        }
+
+        function updateModalPrice() {
+            if (!currentSelectedBurger) return;
+
+            const isCombo = document.getElementById('modal-combo').checked;
+            const checkboxes = document.querySelectorAll(`input[name="modal-adds"]:checked`);
+            
+            let totalModal = isCombo ? currentSelectedBurger.comboPrice : currentSelectedBurger.price;
+
+            checkboxes.forEach(cb => {
+                totalModal += parseFloat(cb.getAttribute('data-price'));
+            });
+
+            document.getElementById('modal-total-price').innerText = `R$ ${totalModal.toFixed(2)}`;
+        }
+
+        function confirmBurgerAddition() {
+            if (!currentSelectedBurger) return;
+
+            const sauceSelect = document.getElementById('modal-sauce');
+            if (!sauceSelect.value) {
+                alert("Por favor, escolha um molho antes de continuar!");
+                sauceSelect.focus();
+                return;
+            }
+
+            const burger = currentSelectedBurger;
+            const isCombo = document.getElementById('modal-combo').checked;
+            const comboRefri = document.getElementById('modal-combo-refri').value;
+            const sauce = sauceSelect.value;
+            const obsText = document.getElementById('modal-obs').value.trim();
+            const checkboxes = document.querySelectorAll(`input[name="modal-adds"]:checked`);
+            
+            let addsPrice = 0;
+            let addsNames = [];
+            checkboxes.forEach(cb => {
+                addsPrice += parseFloat(cb.getAttribute('data-price'));
+                addsNames.push(cb.getAttribute('data-name'));
+            });
+
+            let finalName = burger.name;
+            let badgeText = burger.badge;
+
+            if (isCombo) {
+                finalName += ` (COMBO: Batata + ${comboRefri})`;
+            }
+
+            if (sauce !== "Não quero molho") {
+                finalName += ` [Molho: ${sauce}]`;
+            } else {
+                finalName += ` [Sem Molho]`;
+            }
+
+            if (addsNames.length > 0) finalName += ` + Adic: (${addsNames.join(", ")})`;
+            if (obsText) finalName += ` | Obs: ${obsText}`;
+            
+            const finalPrice = (isCombo ? burger.comboPrice : burger.price) + addsPrice;
+            
+            addToCart(finalName, finalPrice, badgeText);
+            closeProductModal();
+        }
+
+        function addToCart(name, price, badge = '') {
+            const item = cart.find(i => i.name === name);
+            if (item) item.qty++; else cart.push({ name, price, badge, qty: 1 });
+            updateCart();
+        }
+
+        function removeFromCart(name) {
+            const index = cart.findIndex(i => i.name === name);
+            if (cart[index].qty > 1) cart[index].qty--; else cart.splice(index, 1);
+            updateCart();
+        }
+
+        function updateCart() {
+            const footerBar = document.getElementById('cart-footer-bar');
+            
+            if (cart.length > 0) {
+                footerBar.classList.remove('hidden');
+            } else {
+                footerBar.classList.add('hidden');
+                document.getElementById('cart-modal').classList.add('hidden');
+            }
+
+            const list = document.getElementById('cart-items');
+            const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            document.getElementById('cart-count').innerText = cart.reduce((acc, i) => acc + i.qty, 0);
+            document.getElementById('cart-total-footer').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('total-final').innerText = `R$ ${total.toFixed(2)}`;
+            
+            list.innerHTML = cart.length ? '' : '<p class="text-center text-zinc-600 py-10">Seu carrinho está vazio</p>';
+            cart.forEach(i => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-zinc-800/40 p-4 rounded-2xl border border-zinc-800 text-sm">
+                        <div class="flex-1 pr-2">
+                            <p class="font-bold uppercase leading-tight text-zinc-200">${i.name}</p>
+                            ${i.badge ? `<p class="text-amber-500 text-xs italic font-semibold mt-0.5">"${i.badge}"</p>` : ''}
+                            <p class="text-amber-400 text-[11px] font-bold mt-1">R$ ${(i.price * i.qty).toFixed(2)}</p>
+                        </div>
+                        <div class="flex items-center gap-4 ml-2 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 flex-shrink-0">
+                            <button onclick="removeFromCart('${i.name}')" class="text-zinc-500 hover:text-white font-bold text-xl transition">-</button>
+                            <span class="font-bold text-sm w-4 text-center">${i.qty}</span>
+                            <button onclick="addToCart('${i.name}', ${i.price}, '${i.badge || ''}')" class="text-amber-400 hover:text-amber-300 font-bold text-xl transition">+</button>
+                        </div>
+                    </div>`;
+            });
+            atualizarLinkWhatsapp();
+        }
+
+        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        function toggleTroco() { document.getElementById('troco-box').classList.toggle('hidden', document.getElementById('payment-method').value !== 'Dinheiro'); }
+
+        function atualizarLinkWhatsapp() {
+            const clientName = document.getElementById('client-name').value;
+            const address = document.getElementById('address').value;
+            const total = cart.reduce((acc, i) => acc + (i.price * i.qty), 0);
+            const payment = document.getElementById('payment-method').value;
+            const troco = document.getElementById('troco-valor').value;
+
+            let msg = `*🍔 NOVO PEDIDO - BURGUILA*\n\n`;
+            if (clientName.trim()) {
+                msg += `*Cliente:* ${clientName}\n\n`;
+            }
+            cart.forEach(i => { 
+                let cleanName = i.name.replace(/^\d+°\s*/, '');
+                msg += `• *${i.qty}x* ${cleanName}\n`;
+            });
+            msg += `\n--------------------------\n`;
+            msg += `*VALOR TOTAL:* R$ ${total.toFixed(2)}\n`;
+            msg += `*Taxa de entrega:* A combinar\n`;
+            msg += `*Pagamento:* ${payment}\n`;
+            if(payment === 'Dinheiro' && troco) {
+                msg += `*Troco para:* R$ ${parseFloat(troco).toFixed(2)}\n`;
+                msg += `*Troco:* R$ ${(parseFloat(troco) - total).toFixed(2)}\n`;
+            }
+            msg += `*Endereço:* ${address}`;
+
+            const phone = "5563999210048";
+            document.getElementById('btn-finalizar').href = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
+        }
+
+        document.getElementById('client-name').addEventListener('input', atualizarLinkWhatsapp);
+        document.getElementById('address').addEventListener('input', atualizarLinkWhatsapp);
+        document.getElementById('troco-valor').addEventListener('input', atualizarLinkWhatsapp);
+
+        function validarPedido(e) {
+            if (cart.length === 0) { alert("Adicione itens ao carrinho!"); e.preventDefault(); return false; }
+            if (!document.getElementById('client-name').value.trim()) { alert("Por favor, preencha seu Nome para identificação!"); e.preventDefault(); return false; }
+            if (!document.getElementById('address').value.trim()) { alert("Preencha o endereço de entrega!"); e.preventDefault(); return false; }
+            return true;
+        }
+
+        render();
+    </script>
+</body>
+</html>
