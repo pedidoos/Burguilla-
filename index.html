@@ -10,16 +10,42 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto:wght@300;400;700&family=Yellowtail&display=swap');
-        body { background-color: #000; color: white; font-family: 'Roboto', sans-serif; }
+        
+        /* Paleta de Cores Estilo Clean (Fundo Branco & Detalhes Modernos) */
+        body { background-color: #f8fafc; color: #1e293b; font-family: 'Roboto', sans-serif; }
         .header-title { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
-        .cursive { font-family: 'Yellowtail', cursive; color: #d4af37; }
-        .card-bg { background: linear-gradient(145deg, #141411, #080806); border: 1px solid #2e2a20; }
-        .btn-primary { background-color: #b8860b; color: white; transition: all 0.2s ease; }
-        .btn-primary:hover { background-color: #a0750a; }
-        .cart-badge { position: absolute; top: -5px; right: -5px; background: #fbbf24; color: black; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-        .menu-section { border-left: 4px solid #d4af37; padding-left: 15px; margin-bottom: 25px; }
-        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-        .adicional-item { border-bottom: 1px solid #1c1a16; padding: 12px 0; }
+        .cursive { font-family: 'Yellowtail', cursive; color: #ea580c; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        
+        /* Cartões com acabamento clean, fundo branco e borda sutil */
+        .card-bg { 
+            background: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .card-bg:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Botão Laranja Destacado */
+        .btn-primary { 
+            background: linear-gradient(135deg, #f97316, #c2410c); 
+            color: #ffffff; 
+            font-weight: 800;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #fb923c, #ea580c);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+        }
+
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: #ea580c; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+        .menu-section { border-left: 4px solid #f97316; padding-left: 15px; margin-bottom: 25px; }
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f97316' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+        .adicional-item { border-bottom: 1px solid #f1f5f9; padding: 12px 0; }
         .adicional-item:last-child { border-bottom: none; }
         
         /* Estilo do Slider */
@@ -29,9 +55,9 @@
 </head>
 <body class="pb-32">
 
-    <!-- Header -->
-    <header class="w-full max-w-2xl mx-auto overflow-hidden border-b border-zinc-900">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhbZ3d3MvLcj_s3uy68HQPr-LeUb5AIMKF7GS71hLSU1wy0mN2PBogGXGT5xflmZ2811ioCYktSSGRYL3TnMkB_bpv_BBd6Y1UOdUSawLjUPQ-Uv8XV0n4FZv2VM480P60UB-RXKfzT2opWAAN7PGRzkCQZQA_Dirkpf-oftRUeziu0trIb33dT9_m-aGw/s1600/Untitled%20design.jpeg" alt="Burguila Topo" class="w-full h-auto object-cover block">
+    <!-- Header com fundo branco total e limpo -->
+    <header class="w-full max-w-2xl mx-auto overflow-hidden bg-white shadow-sm">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj2y2pEVbdktCk7F-t6cqgt1AXtfHNBxUFiZhDHx6f84prmffJQjGIsf3CWQMykCD-Epeq2u7_ZyKoEXHCnZaFelVpXfF0Z4U2NLNJJdq-LjafwgxCgm-NOduEND2X-NSHYghxGQBF5xJ5TJtPMgxsjVNhvixXiVdvsQrbERt2yN7gvrwWfCKLdYCdCHSY/s1600/316160.jpg" alt="Burguila Topo" class="w-full h-auto object-cover block bg-white">
     </header>
 
     <!-- Slider de Hambúrgueres -->
@@ -85,12 +111,12 @@
         </section>
     </main>
 
-    <footer class="text-center text-zinc-600 text-xs py-6 border-t border-zinc-900 mt-12 max-w-2xl mx-auto px-4">
-        <p>Burguila • Todos os direitos reservados por <span class="text-amber-500/70 font-medium">@maxwellber_63</span></p>
+    <footer class="text-center text-slate-500 text-xs py-6 border-t border-slate-200 mt-12 max-w-2xl mx-auto px-4">
+        <p>Burguila • Todos os direitos reservados por <span class="text-orange-600 font-medium">@maxwellber_63</span></p>
     </footer>
 
-    <div id="cart-footer-bar" class="fixed bottom-0 left-0 right-0 p-4 bg-black/90 backdrop-blur-md border-t border-zinc-800 z-40 hidden">
-        <button onclick="toggleModal('cart-modal')" class="btn-primary w-full max-w-2xl mx-auto py-4 rounded-xl font-black flex items-center justify-center gap-4 shadow-lg text-white">
+    <div id="cart-footer-bar" class="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 hidden shadow-2xl">
+        <button onclick="toggleModal('cart-modal')" class="btn-primary w-full max-w-2xl mx-auto py-4 rounded-xl font-black flex items-center justify-center gap-4 shadow-lg text-white uppercase tracking-wider">
             <div class="relative">
                 <i class="fa-solid fa-cart-shopping text-xl"></i>
                 <span id="cart-count" class="cart-badge">0</span>
@@ -100,41 +126,41 @@
     </div>
 
     <!-- Modal de Produto -->
-    <div id="product-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden overflow-y-auto">
+    <div id="product-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
         <div class="min-h-screen flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="w-full sm:max-w-xl bg-zinc-950 rounded-t-3xl sm:rounded-3xl border border-zinc-800 overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh]">
+            <div class="w-full sm:max-w-xl bg-white rounded-t-3xl sm:rounded-3xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] shadow-2xl">
                 
-                <div class="relative p-6 border-b border-zinc-900 bg-zinc-900/50 flex justify-between items-start">
+                <div class="relative p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-start">
                     <div class="pr-8">
-                        <h2 id="modal-burger-name" class="text-2xl font-bold header-title text-amber-400"></h2>
-                        <span id="modal-burger-badge" class="text-xs font-bold italic text-amber-500 block mt-1"></span>
-                        <p id="modal-burger-desc" class="text-zinc-300 text-sm mt-2 leading-relaxed"></p>
+                        <h2 id="modal-burger-name" class="text-2xl font-bold header-title text-slate-900"></h2>
+                        <span id="modal-burger-badge" class="text-xs font-bold italic text-orange-600 block mt-1"></span>
+                        <p id="modal-burger-desc" class="text-slate-600 text-sm mt-2 leading-relaxed"></p>
                     </div>
-                    <button onclick="closeProductModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition">
+                    <button onclick="closeProductModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-slate-200 rounded-full text-slate-600 hover:text-slate-900 transition border border-slate-300">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
 
                 <div class="p-6 overflow-y-auto space-y-6 flex-1">
-                    <div id="modal-burger-img-container" class="h-56 w-full rounded-2xl overflow-hidden border border-zinc-800 relative bg-black flex items-center justify-center">
+                    <div id="modal-burger-img-container" class="h-56 w-full rounded-2xl overflow-hidden border border-slate-200 relative bg-slate-100 flex items-center justify-center">
                         <img id="modal-burger-img" src="" alt="Hambúrguer" class="w-full h-full object-contain">
                     </div>
 
-                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-                        <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3">1. Deseja transformar em Combo?</p>
-                        <label class="flex items-center justify-between cursor-pointer p-2 bg-black/40 rounded-lg border border-zinc-900">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <p class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">1. Deseja transformar em Combo?</p>
+                        <label class="flex items-center justify-between cursor-pointer p-3 bg-white rounded-lg border border-slate-200">
                             <div class="flex items-center gap-3">
-                                <input type="checkbox" id="modal-combo" onchange="toggleComboOptions()" class="w-5 h-5 accent-amber-500 rounded">
+                                <input type="checkbox" id="modal-combo" onchange="toggleComboOptions()" class="w-5 h-5 accent-orange-600 rounded">
                                 <div>
-                                    <span class="font-bold text-sm text-yellow-500">Adicionar Combo (+ R$ 11,00)</span>
-                                    <p class="text-[11px] text-zinc-500">Acompanha Batata Frita + Refrigerante Lata</p>
+                                    <span class="font-bold text-sm text-slate-800">Adicionar Combo (+ R$ 11,00)</span>
+                                    <p class="text-[11px] text-slate-500">Acompanha Batata Frita + Refrigerante Lata</p>
                                 </div>
                             </div>
                         </label>
 
-                        <div id="combo-drink-select" class="mt-3 hidden pt-3 border-t border-zinc-800/60">
-                            <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">Escolha o Refrigerante do Combo:</label>
-                            <select id="modal-combo-refri" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white outline-none">
+                        <div id="combo-drink-select" class="mt-3 hidden pt-3 border-t border-slate-200">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Escolha o Refrigerante do Combo:</label>
+                            <select id="modal-combo-refri" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 outline-none">
                                 <option value="Coca Cola Sabor Original Lata">Coca Cola Sabor Original Lata</option>
                                 <option value="Coca Cola Zero Lata">Coca Cola Zero Lata</option>
                                 <option value="Guaraná Antarctica Lata">Guaraná Antarctica Lata</option>
@@ -143,9 +169,9 @@
                         </div>
                     </div>
 
-                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-                        <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">2. Escolha seu Molho (Obrigatório) *</label>
-                        <select id="modal-sauce" class="w-full bg-black border border-zinc-800 rounded-xl p-3.5 text-sm text-white outline-none">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">2. Escolha seu Molho (Obrigatório) *</label>
+                        <select id="modal-sauce" class="w-full bg-white border border-slate-300 rounded-xl p-3.5 text-sm text-slate-800 outline-none">
                             <option value="" disabled selected>Selecione um molho...</option>
                             <option value="Molho de Alho">Molho de Alho</option>
                             <option value="Molho Barbecue">Molho Barbecue</option>
@@ -153,22 +179,22 @@
                         </select>
                     </div>
 
-                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-                        <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">3. Observações / Retiradas (Opcional)</label>
-                        <p class="text-[11px] text-zinc-500 mb-2">Ex: "Retirar a cebola", "Sem tomate", etc.</p>
-                        <textarea id="modal-obs" class="w-full bg-black border border-zinc-800 rounded-xl p-3 text-sm text-white h-20 resize-none outline-none" placeholder="Digite aqui se deseja retirar algo..."></textarea>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">3. Observações / Retiradas (Opcional)</label>
+                        <p class="text-[11px] text-slate-500 mb-2">Ex: "Retirar a cebola", "Sem tomate", etc.</p>
+                        <textarea id="modal-obs" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 h-20 resize-none outline-none" placeholder="Digite aqui se deseja retirar algo..."></textarea>
                     </div>
 
-                    <div class="bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
-                        <p class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">4. Adicionais Extra? (Opcional)</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <p class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">4. Adicionais Extra? (Opcional)</p>
                         <div id="modal-adicionais-list" class="space-y-1"></div>
                     </div>
                 </div>
 
-                <div class="p-4 bg-zinc-900 border-t border-zinc-800 flex gap-3 items-center">
+                <div class="p-4 bg-white border-t border-slate-200 flex gap-3 items-center">
                     <button id="modal-submit-btn" onclick="confirmBurgerAddition()" class="w-full btn-primary py-4 rounded-xl font-black uppercase text-sm tracking-wide flex justify-between items-center px-6 shadow-lg text-white">
                         <span>Adicionar ao carrinho</span>
-                        <span id="modal-total-price" class="text-yellow-400">R$ 0,00</span>
+                        <span id="modal-total-price" class="text-white font-extrabold">R$ 0,00</span>
                     </button>
                 </div>
 
@@ -177,40 +203,40 @@
     </div>
 
     <!-- Modal do Carrinho -->
-    <div id="cart-modal" class="fixed inset-0 bg-black/95 z-50 hidden overflow-y-auto">
-        <div class="min-h-screen p-4">
-            <div class="max-w-lg mx-auto w-full bg-zinc-900 rounded-3xl p-6 border border-zinc-800">
-                <div class="flex justify-between items-center mb-8 border-b border-zinc-800 pb-4">
-                    <h2 class="text-2xl font-bold header-title">Seu Pedido</h2>
-                    <button onclick="toggleModal('cart-modal')"><i class="fa-solid fa-xmark text-2xl text-zinc-500"></i></button>
+    <div id="cart-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+        <div class="min-h-screen p-4 flex items-center justify-center">
+            <div class="max-w-lg mx-auto w-full bg-white rounded-3xl p-6 border border-slate-200 shadow-2xl">
+                <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
+                    <h2 class="text-2xl font-bold header-title text-slate-900">Seu Pedido</h2>
+                    <button onclick="toggleModal('cart-modal')"><i class="fa-solid fa-xmark text-2xl text-slate-400"></i></button>
                 </div>
                 <div id="cart-items" class="space-y-4 mb-8"></div>
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-xs font-bold text-zinc-500 mb-2">PAGAMENTO</label>
-                        <select id="payment-method" onchange="toggleTroco()" class="w-full bg-zinc-800 p-4 rounded-xl text-white outline-none">
+                        <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">PAGAMENTO</label>
+                        <select id="payment-method" onchange="toggleTroco()" class="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl text-slate-800 outline-none">
                             <option value="Pix">Pix</option>
                             <option value="Cartão">Cartão</option>
                             <option value="Dinheiro">Dinheiro</option>
                         </select>
                     </div>
                     <div id="troco-box" class="hidden">
-                        <label class="block text-xs font-bold text-zinc-500 mb-2">TROCO PARA QUANTO?</label>
-                        <input type="number" id="troco-valor" class="w-full bg-zinc-800 p-4 rounded-xl text-white" placeholder="Ex: 100">
+                        <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">TROCO PARA QUANTO?</label>
+                        <input type="number" id="troco-valor" class="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl text-slate-800 outline-none" placeholder="Ex: 100">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-zinc-500 mb-2">SEU NOME (PARA IDENTIFICAÇÃO)</label>
-                        <input type="text" id="client-name" class="w-full bg-zinc-800 p-4 rounded-xl text-white outline-none" placeholder="Ex: João">
+                        <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">SEU NOME (PARA IDENTIFICAÇÃO)</label>
+                        <input type="text" id="client-name" class="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl text-slate-800 outline-none" placeholder="Ex: João">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-zinc-500 mb-2">ENDEREÇO DE ENTREGA</label>
-                        <textarea id="address" class="w-full bg-zinc-800 p-4 rounded-xl text-white h-24 resize-none" placeholder="Rua, Número, Bairro..."></textarea>
+                        <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">ENDEREÇO DE ENTREGA</label>
+                        <textarea id="address" class="w-full bg-slate-50 border border-slate-300 p-4 rounded-xl text-slate-800 h-24 resize-none outline-none" placeholder="Rua, Número, Bairro..."></textarea>
                     </div>
-                    <div class="flex justify-between items-center pt-4">
-                        <span class="text-xl font-bold">TOTAL:</span>
-                        <span id="total-final" class="text-3xl font-black text-amber-400">R$ 0,00</span>
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <span class="text-xl font-bold text-slate-700">TOTAL:</span>
+                        <span id="total-final" class="text-3xl font-black text-orange-600">R$ 0,00</span>
                     </div>
-                    <a id="btn-finalizar" href="#" target="_blank" onclick="return validarPedido(event)" class="w-full bg-green-600 py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition hover:bg-green-700 text-white">
+                    <a id="btn-finalizar" href="#" target="_blank" onclick="return validarPedido(event)" class="w-full bg-emerald-600 py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition hover:bg-emerald-500 text-white shadow-lg">
                         <i class="fa-brands fa-whatsapp text-2xl"></i> FINALIZAR NO WHATSAPP
                     </a>
                 </div>
@@ -293,11 +319,11 @@
         menu.burgers.forEach(b => {
             slider.innerHTML += `
                 <div class="swiper-slide">
-                    <div onclick="openProductModal(${b.id})" class="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 shadow-lg cursor-pointer hover:border-amber-500/50 transition">
+                    <div onclick="openProductModal(${b.id})" class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer hover:border-orange-500 transition">
                         <img src="${b.image}" class="w-full h-36 object-cover">
                         <div class="p-2.5">
-                            <h3 class="font-bold text-amber-400 text-xs truncate">${b.name}</h3>
-                            <p class="text-[10px] text-zinc-400 italic mt-0.5 truncate">"${b.badge}"</p>
+                            <h3 class="font-bold text-orange-600 text-xs truncate">${b.name}</h3>
+                            <p class="text-[10px] text-slate-500 italic mt-0.5 truncate">"${b.badge}"</p>
                         </div>
                     </div>
                 </div>
@@ -316,21 +342,21 @@
             bList.innerHTML = '';
             menu.burgers.forEach(item => {
                 bList.innerHTML += `
-                    <div onclick="openProductModal(${item.id})" class="card-bg rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:border-amber-500/50 transition">
+                    <div onclick="openProductModal(${item.id})" class="card-bg rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer">
                         <div class="flex gap-4 items-start flex-1 w-full">
-                            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-zinc-800 flex-shrink-0">
+                            <img src="${item.image}" alt="${item.name}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-slate-200 flex-shrink-0">
                             <div class="flex-1">
-                                <h3 class="font-bold text-lg text-amber-400">${item.name}</h3>
-                                <p class="text-zinc-300 text-xs my-1 leading-relaxed">${item.desc}</p>
+                                <h3 class="font-bold text-lg text-slate-900">${item.name}</h3>
+                                <p class="text-slate-600 text-xs my-1 leading-relaxed">${item.desc}</p>
                             </div>
                         </div>
-                        <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t border-zinc-800 sm:border-t-0">
-                            <span class="text-amber-400 text-xs font-bold italic text-center max-w-[150px] sm:max-w-[130px]">
+                        <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t border-slate-100 sm:border-t-0">
+                            <span class="text-orange-600 text-xs font-bold italic text-center max-w-[150px] sm:max-w-[130px]">
                                 "${item.badge}"
                             </span>
-                            <div class="text-center bg-zinc-900/80 px-4 py-2 rounded-xl border border-zinc-800 min-w-[80px] flex-shrink-0">
-                                <span class="text-[10px] font-bold text-zinc-500 block uppercase tracking-wider leading-none">A partir de</span>
-                                <span class="text-amber-400 font-black text-xl block mt-0.5 leading-tight">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <div class="text-center bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 min-w-[80px] flex-shrink-0">
+                                <span class="text-[10px] font-bold text-slate-400 block uppercase tracking-wider leading-none">A partir de</span>
+                                <span class="text-slate-900 font-black text-xl block mt-0.5 leading-tight">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                             </div>
                         </div>
                     </div>`;
@@ -342,14 +368,14 @@
                 pList.innerHTML += `
                     <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-slate-200 flex-shrink-0 bg-slate-50 flex items-center justify-center overflow-hidden">
                                 <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
                             </div>
-                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                            <span class="text-sm font-bold uppercase text-slate-800">${item.name}</span>
                         </div>
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                            <span class="text-slate-900 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-black text-white text-xl">+</button>
                         </div>
                     </div>`;
             });
@@ -360,14 +386,14 @@
                 sList.innerHTML += `
                     <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-slate-200 flex-shrink-0 bg-slate-50 flex items-center justify-center overflow-hidden">
                                 <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
                             </div>
-                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                            <span class="text-sm font-bold uppercase text-slate-800">${item.name}</span>
                         </div>
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                            <span class="text-slate-900 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-black text-white text-xl">+</button>
                         </div>
                     </div>`;
             });
@@ -378,14 +404,14 @@
                 lataList.innerHTML += `
                     <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-slate-200 flex-shrink-0 bg-slate-50 flex items-center justify-center overflow-hidden">
                                 <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
                             </div>
-                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                            <span class="text-sm font-bold uppercase text-slate-800">${item.name}</span>
                         </div>
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                            <span class="text-slate-900 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-black text-white text-xl">+</button>
                         </div>
                     </div>`;
             });
@@ -396,14 +422,14 @@
                 litroList.innerHTML += `
                     <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-slate-200 flex-shrink-0 bg-slate-50 flex items-center justify-center overflow-hidden">
                                 <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
                             </div>
-                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                            <span class="text-sm font-bold uppercase text-slate-800">${item.name}</span>
                         </div>
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                            <span class="text-slate-900 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-black text-white text-xl">+</button>
                         </div>
                     </div>`;
             });
@@ -411,18 +437,18 @@
             const sucoList = document.getElementById('sucos-list');
             sucoList.innerHTML = '';
             menu.sucosNaturais.forEach(item => {
-                const bgClass = item.bgWhite ? 'bg-white' : 'bg-black';
+                const bgClass = item.bgWhite ? 'bg-slate-100' : 'bg-slate-50';
                 sucoList.innerHTML += `
                     <div class="card-bg rounded-2xl p-4 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-4 flex-1">
-                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-zinc-800 flex-shrink-0 ${bgClass} flex items-center justify-center overflow-hidden">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-slate-200 flex-shrink-0 ${bgClass} flex items-center justify-center overflow-hidden">
                                 <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
                             </div>
-                            <span class="text-sm font-bold uppercase text-zinc-200">${item.name}</span>
+                            <span class="text-sm font-bold uppercase text-slate-800">${item.name}</span>
                         </div>
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <span class="text-amber-400 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
-                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-bold text-white text-xl">+</button>
+                            <span class="text-slate-900 font-bold text-base sm:text-lg">R$ ${item.price.toFixed(2).replace('.', ',')}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="w-10 h-10 rounded-xl btn-primary flex items-center justify-center font-black text-white text-xl">+</button>
                         </div>
                     </div>`;
             });
@@ -448,11 +474,11 @@
             menu.adicionais.forEach(add => {
                 addsContainer.innerHTML += `
                     <div class="flex items-center justify-between adicional-item">
-                        <label class="flex items-center gap-3 cursor-pointer text-sm text-zinc-300 w-full py-1">
-                            <input type="checkbox" name="modal-adds" value="${add.id}" data-price="${add.price}" data-name="${add.name}" onchange="updateModalPrice()" class="w-5 h-5 accent-amber-500 rounded">
+                        <label class="flex items-center gap-3 cursor-pointer text-sm text-slate-700 w-full py-1">
+                            <input type="checkbox" name="modal-adds" value="${add.id}" data-price="${add.price}" data-name="${add.name}" onchange="updateModalPrice()" class="w-5 h-5 accent-orange-600 rounded">
                             <span>${add.name}</span>
                         </label>
-                        <span class="text-xs text-amber-400 font-medium">+ R$ ${add.price.toFixed(2)}</span>
+                        <span class="text-xs text-orange-600 font-semibold">+ R$ ${add.price.toFixed(2)}</span>
                     </div>`;
             });
 
@@ -567,19 +593,19 @@
             document.getElementById('cart-total-footer').innerText = `R$ ${total.toFixed(2)}`;
             document.getElementById('total-final').innerText = `R$ ${total.toFixed(2)}`;
             
-            list.innerHTML = cart.length ? '' : '<p class="text-center text-zinc-600 py-10">Seu carrinho está vazio</p>';
+            list.innerHTML = cart.length ? '' : '<p class="text-center text-slate-400 py-10">Seu carrinho está vazio</p>';
             cart.forEach(i => {
                 list.innerHTML += `
-                    <div class="flex justify-between items-center bg-zinc-800/40 p-4 rounded-2xl border border-zinc-800 text-sm">
+                    <div class="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm">
                         <div class="flex-1 pr-2">
-                            <p class="font-bold uppercase leading-tight text-zinc-200">${i.name}</p>
-                            ${i.badge ? `<p class="text-amber-500 text-xs italic font-semibold mt-0.5">"${i.badge}"</p>` : ''}
-                            <p class="text-amber-400 text-[11px] font-bold mt-1">R$ ${(i.price * i.qty).toFixed(2)}</p>
+                            <p class="font-bold uppercase leading-tight text-slate-800">${i.name}</p>
+                            ${i.badge ? `<p class="text-orange-600 text-xs italic font-semibold mt-0.5">"${i.badge}"</p>` : ''}
+                            <p class="text-orange-600 text-[11px] font-bold mt-1">R$ ${(i.price * i.qty).toFixed(2)}</p>
                         </div>
-                        <div class="flex items-center gap-4 ml-2 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 flex-shrink-0">
-                            <button onclick="removeFromCart('${i.name}')" class="text-zinc-500 hover:text-white font-bold text-xl transition">-</button>
-                            <span class="font-bold text-sm w-4 text-center">${i.qty}</span>
-                            <button onclick="addToCart('${i.name}', ${i.price}, '${i.badge || ''}')" class="text-amber-400 hover:text-amber-300 font-bold text-xl transition">+</button>
+                        <div class="flex items-center gap-4 ml-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 flex-shrink-0">
+                            <button onclick="removeFromCart('${i.name}')" class="text-slate-500 hover:text-slate-800 font-bold text-xl transition">-</button>
+                            <span class="font-bold text-sm w-4 text-center text-slate-800">${i.qty}</span>
+                            <button onclick="addToCart('${i.name}', ${i.price}, '${i.badge || ''}')" class="text-orange-600 hover:text-orange-700 font-bold text-xl transition">+</button>
                         </div>
                     </div>`;
             });
