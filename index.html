@@ -147,7 +147,7 @@
                     <span class="text-[10px] font-black tracking-[0.2em] text-orange-600 uppercase">Seleção especial</span>
                     <h2 id="promocoes-title" class="cursive text-4xl leading-tight">Promoções Exclusivas</h2>
                 </div>
-                <span class="hidden sm:flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-3 py-2 whitespace-nowrap"><i class="fa-solid fa-cart-plus"></i> Adicione direto</span>
+                <span class="hidden sm:flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-3 py-2 whitespace-nowrap"><i class="fa-solid fa-cart-plus"></i> Personalize o seu</span>
             </div>
         </div>
         <div id="promotions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -229,16 +229,17 @@
 
                 <div class="p-6 overflow-y-auto space-y-6 flex-1">
                     <div id="modal-burger-img-container" class="h-56 w-full rounded-2xl overflow-hidden border border-slate-200 relative bg-slate-100 flex items-center justify-center">
-                        <img id="modal-burger-img" src="" alt="Hambúrguer" class="w-full h-full object-contain">
+                        <img id="modal-burger-img" src="" alt="Produto" class="w-full h-full object-contain">
                     </div>
 
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <!-- Bloco de Opção de Combo para Hambúrgueres Normais -->
+                    <div id="combo-option-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <p class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">1. Deseja transformar em Combo?</p>
                         <label class="flex items-center justify-between cursor-pointer p-3 bg-white rounded-lg border border-slate-200">
                             <div class="flex items-center gap-3">
                                 <input type="checkbox" id="modal-combo" onchange="toggleComboOptions()" class="w-5 h-5 accent-orange-600 rounded">
                                 <div>
-                                    <span class="font-bold text-sm text-slate-800">Adicionar Combo (+ R$ 11,00)</span>
+                                    <span id="modal-combo-text" class="font-bold text-sm text-slate-800">Adicionar Combo (+ R$ 11,00)</span>
                                     <p class="text-[11px] text-slate-500">Acompanha Batata Frita + Refrigerante Lata</p>
                                 </div>
                             </div>
@@ -255,7 +256,18 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <!-- Opções específicas das promoções -->
+                    <div id="promo-drink-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
+                        <label id="promo-drink-label" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">1. Escolha o Refrigerante:</label>
+                        <select id="modal-promo-refri" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 outline-none"></select>
+                    </div>
+
+                    <div id="promo-sauces-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
+                        <p id="promo-sauces-label" class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">2. Escolha os molhos</p>
+                        <div id="promo-sauces-list" class="space-y-3"></div>
+                    </div>
+
+                    <div id="single-sauce-container" class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">2. Escolha seu Molho (Obrigatório) *</label>
                         <select id="modal-sauce" class="w-full bg-white border border-slate-300 rounded-xl p-3.5 text-sm text-slate-800 outline-none">
                             <option value="" disabled selected>Selecione um molho...</option>
@@ -268,7 +280,7 @@
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">3. Observações / Retiradas (Opcional)</label>
                         <p class="text-[11px] text-slate-500 mb-2">Ex: "Retirar a cebola", "Sem tomate", etc.</p>
-                        <textarea id="modal-obs" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 h-20 resize-none outline-none" placeholder="Digite aqui se deseja retirar algo..."></textarea>
+                        <textarea id="modal-obs" class="w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 h-20 resize-none outline-none" placeholder="Digite here se deseja retirar algo..."></textarea>
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -278,7 +290,7 @@
                 </div>
 
                 <div class="p-4 bg-white border-t border-slate-200 flex gap-3 items-center">
-                    <button id="modal-submit-btn" onclick="confirmBurgerAddition()" class="w-full btn-primary py-4 rounded-xl font-black uppercase text-sm tracking-wide flex justify-between items-center px-6 shadow-lg text-white">
+                    <button id="modal-submit-btn" onclick="confirmProductAddition()" class="w-full btn-primary py-4 rounded-xl font-black uppercase text-sm tracking-wide flex justify-between items-center px-6 shadow-lg text-white">
                         <span>Adicionar ao carrinho</span>
                         <span id="modal-total-price" class="text-white font-extrabold">R$ 0,00</span>
                     </button>
@@ -343,10 +355,10 @@
                 "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhiYlM4XSyxvdcoJl_HRyYTrvYTB69jKHk2UUEgcNp5SAXzAv8r6YadP2amEeTsqhoSI__o4-fYxuiESHyHmSF85HRgUD4D7to3SVFsm1hF-lJwwF2GAEcjPiOEbYpolmv0nqDDZNEYUcXFa1-6nm3jvFHczOENlRdHvtlTd51RyH2HNXDHNGHRqkQomnE/s1600/328291.jpg"
             ],
             promotions: [
-                { id: "promo-burguinho", name: "Burguinho", description: "Lanche promocional • oferta ilimitada", price: 9.99, tag: "OFERTA ILIMITADA", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuM8dKr4a4pLXQAbsPqEyu93i1UKZrT_m5QhubXrMrD3pJubxcnKKbusX_XhQLZXND6lEEDb2Y0IOuk21O3QSSpf3vhBZ0brbPiP1M5H_zcWsF83_4HU-ZrtuPYm3CsXlDbYS2o1sNlc6KsTPomQNVAxGiOATJe-i1RB1ELu95jH6o6c52sthz865HB70/s1600/328398.jpg" },
-                { id: "promo-agridoce", name: "Combo Lançamento Agridoce Especial", description: "Agridoce especial + batata frita + refrigerante de 350ml", price: 40, tag: "COMBO LANÇAMENTO", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgr3hUN4CCq3HIFhjLz6goxinyrLYwXskG55wOaFuo9IP8wr5z1zyBCSVMYijBsMDyJZ0kiy7bZNB1_2Dk0k11I1DENr73X0jGdjEr-baiqIVPH-Xwa5aiKIm3LOOfIPboBwjS42otwz-cyBK3XoMp94bx6XRc6oaUqEGbHQvaBtGjHct0atFt8tYjUhsQ/s1600/328399.jpg" },
-                { id: "promo-duplo-nana", name: "Combo Duplo & Nana", description: "Burgue duplo + Nana burgue + batata frita + refrigerante de 1L", price: 70, tag: "COMBO PARA COMPARTILHAR", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgIEMWG9njzgCEtIv5jddBDRhi2hSaX69M40NSudAJaEcpnMEFQaXNP2MYMThaLRuDj5pltsbOvgj4RAhZZzcxaobXzfOrmYC1qG3-5psFpkwYK6lVQQEnSo7OZNugV9mZTVjU80A-eD19NAisJ-oJ3rAN9AgDPMGLTV-czX-AugcvU5FlwfWnHSzWLKoI/s1600/328400.jpg" },
-                { id: "promo-fome-grande", name: "Combo Fome Grande", description: "Burgue top + Burgue especial + Flash + 2 batatas fritas + refrigerante de 1L", price: 100, tag: "PARA MATAR A FOME", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJtVIYujGrKBp9o9fcHbsHavn6XEPGQryHzKofFLwS5GdVs752ruG0vwEibf-m7VXEPp4JMLJcOPYamZ_b0115mZALMyVTYx1zBu2Grw2kozgGbqhu3bEJJeTi40zgt743T2u7UhT30mDTJYTVoE_dNSFApPDvRK_0iRjr8MoU78KJDiwoT-cfsrI0ICo/s1600/328401.jpg" }
+                { id: "promo-burguinho", name: "Burguinho", description: "Lanche promocional • oferta ilimitada", price: 9.99, comboPrice: 20.99, hasCombo: true, desc: "Lanche promocional • oferta ilimitada", badge: "OFERTA ILIMITADA", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuM8dKr4a4pLXQAbsPqEyu93i1UKZrT_m5QhubXrMrD3pJubxcnKKbusX_XhQLZXND6lEEDb2Y0IOuk21O3QSSpf3vhBZ0brbPiP1M5H_zcWsF83_4HU-ZrtuPYm3CsXlDbYS2o1sNlc6KsTPomQNVAxGiOATJe-i1RB1ELu95jH6o6c52sthz865HB70/s1600/328398.jpg" },
+                { id: "promo-agridoce", name: "Combo Lançamento Agridoce Especial", description: "Agridoce especial + batata frita + refrigerante de 350ml", price: 40.00, hasCombo: false, desc: "Agridoce especial + batata frita + refrigerante de 350ml", badge: "COMBO LANÇAMENTO", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgr3hUN4CCq3HIFhjLz6goxinyrLYwXskG55wOaFuo9IP8wr5z1zyBCSVMYijBsMDyJZ0kiy7bZNB1_2Dk0k11I1DENr73X0jGdjEr-baiqIVPH-Xwa5aiKIm3LOOfIPboBwjS42otwz-cyBK3XoMp94bx6XRc6oaUqEGbHQvaBtGjHct0atFt8tYjUhsQ/s1600/328399.jpg" },
+                { id: "promo-duplo-nano", name: "Combo Duplo & Nano", description: "Burgue duplo + Nana burgue + batata frita + refrigerante de 1L", price: 70.00, hasCombo: false, desc: "Burgue duplo + Nana burgue + batata frita + refrigerante de 1L", badge: "LANCHES E COMBOS", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgIEMWG9njzgCEtIv5jddBDRhi2hSaX69M40NSudAJaEcpnMEFQaXNP2MYMThaLRuDj5pltsbOvgj4RAhZZzcxaobXzfOrmYC1qG3-5psFpkwYK6lVQQEnSo7OZNugV9mZTVjU80A-eD19NAisJ-oJ3rAN9AgDPMGLTV-czX-AugcvU5FlwfWnHSzWLKoI/s1600/328400.jpg" },
+                { id: "promo-fome-grande", name: "Combo Fome Grande", description: "Burgue top + Burgue especial + Flash + 2 batatas fritas + refrigerante de 1L", price: 100.00, hasCombo: false, desc: "Burgue top + Burgue especial + Flash + 2 batatas fritas + refrigerante de 1L", badge: "PARA MATAR A FOME", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJtVIYujGrKBp9o9fcHbsHavn6XEPGQryHzKofFLwS5GdVs752ruG0vwEibf-m7VXEPp4JMLJcOPYamZ_b0115mZALMyVTYx1zBu2Grw2kozgGbqhu3bEJJeTi40zgt743T2u7UhT30mDTJYTVoE_dNSFApPDvRK_0iRjr8MoU78KJDiwoT-cfsrI0ICo/s1600/328401.jpg" }
             ],
             burgers: [
                 { id: 1, name: "1° Burgue Flash", desc: "Pão brioche, hambúrguer 130g e queijo mussarela", badge: "Rápido E Delicioso!", price: 20, comboPrice: 31, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg89ahCZq6y01LvMGYM-thfs93-OaMu8Z0iHvHHgKX1naFu5zc0J9kYgjKVdH4apDziO1TK8CC8Lv0ZWz0086ZGdU2aKj7WlGZmk4Z9rS_wXFF-SNpbvksWTMtFStW_oFCyq7gEDujGVQ5ZOnteWwhvBiu_2a8ctkc4CImn7-JcXTn_7h-rUFQVFoPqht0/s1280/232526.jpg" },
@@ -412,7 +424,8 @@
         };
 
         let cart = [];
-        let currentSelectedBurger = null;
+        let currentSelectedItem = null;
+        let isPromotionItem = false;
 
         const promoSliderContent = document.getElementById('promo-slider-content');
         menu.promotionalBanners.forEach((image, index) => {
@@ -437,12 +450,12 @@
             promotionsList.innerHTML = '';
             menu.promotions.forEach(promo => {
                 promotionsList.innerHTML += `
-                    <article class="promo-card rounded-2xl overflow-hidden flex flex-col">
+                    <article onclick="openPromoModal('${promo.id}')" class="promo-card rounded-2xl overflow-hidden flex flex-col cursor-pointer">
                         <div class="promo-image-frame flex items-center justify-center p-2">
                             <img src="${promo.image}" alt="${promo.name}" class="w-full h-full object-contain" loading="lazy">
                         </div>
                         <div class="p-4 flex flex-col flex-1">
-                            <span class="self-start text-[9px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-2.5 py-1">${promo.tag}</span>
+                            <span class="self-start text-[9px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-2.5 py-1">${promo.badge}</span>
                             <h3 class="font-black text-lg leading-tight text-slate-900 mt-3">${promo.name}</h3>
                             <p class="text-xs text-slate-600 leading-relaxed mt-1 flex-1">${promo.description}</p>
                             <div class="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-orange-100">
@@ -450,9 +463,9 @@
                                     <span class="block text-[9px] uppercase font-bold tracking-wider text-orange-600">Por apenas</span>
                                     <strong class="block text-3xl leading-none font-black text-orange-700">R$ ${promo.price.toFixed(2).replace('.', ',')}</strong>
                                 </div>
-                                <button type="button" onclick="addPromotionToCart('${promo.id}')" class="btn-primary rounded-xl px-4 py-3 text-xs uppercase tracking-wide flex items-center gap-2 whitespace-nowrap" aria-label="Adicionar ${promo.name} ao carrinho">
+                                <span class="btn-primary rounded-xl px-4 py-3 text-xs uppercase tracking-wide flex items-center gap-2 whitespace-nowrap">
                                     <i class="fa-solid fa-cart-plus"></i> Adicionar
-                                </button>
+                                </span>
                             </div>
                         </div>
                     </article>`;
@@ -575,19 +588,89 @@
         }
 
         function openProductModal(id) {
+            isPromotionItem = false;
             const burger = menu.burgers.find(b => b.id === id);
-            currentSelectedBurger = burger;
+            currentSelectedItem = burger;
 
             document.getElementById('modal-burger-name').innerText = burger.name;
             document.getElementById('modal-burger-badge').innerText = `"${burger.badge}"`;
             document.getElementById('modal-burger-desc').innerText = burger.desc;
             document.getElementById('modal-burger-img').src = burger.image;
+            
+            // Exibe a opção de combo para hambúrgueres normais e esconde o seletor simples de promoções
+            document.getElementById('combo-option-container').style.display = 'block';
+            document.getElementById('promo-drink-container').classList.add('hidden');
+            document.getElementById('promo-sauces-container').classList.add('hidden');
+            document.getElementById('single-sauce-container').classList.remove('hidden');
             document.getElementById('modal-combo').checked = false;
             document.getElementById('combo-drink-select').classList.add('hidden');
+            document.getElementById('modal-combo-text').innerText = "Adicionar Combo (+ R$ 11,00)";
             
             document.getElementById('modal-sauce').value = "";
             document.getElementById('modal-obs').value = "";
 
+            setupAdicionaisModal();
+        }
+
+        function openPromoModal(id) {
+            isPromotionItem = true;
+            const promo = menu.promotions.find(p => p.id === id);
+            currentSelectedItem = promo;
+
+            document.getElementById('modal-burger-name').innerText = promo.name;
+            document.getElementById('modal-burger-badge').innerText = `"${promo.badge}"`;
+            document.getElementById('modal-burger-desc').innerText = promo.desc;
+            document.getElementById('modal-burger-img').src = promo.image;
+            
+            // Burguinho também pode virar combo, igual aos hambúrgueres da categoria principal.
+            const isBurguinho = promo.id === 'promo-burguinho';
+            const isDuploNano = promo.id === 'promo-duplo-nano';
+            const isFomeGrande = promo.id === 'promo-fome-grande';
+            const needsLitroAndMultipleSauces = isDuploNano || isFomeGrande;
+
+            document.getElementById('combo-option-container').style.display = isBurguinho ? 'block' : 'none';
+            document.getElementById('modal-combo').checked = false;
+            document.getElementById('combo-drink-select').classList.add('hidden');
+            document.getElementById('modal-combo-text').innerText = "Adicionar Combo (+ R$ 11,00)";
+
+            const drinkContainer = document.getElementById('promo-drink-container');
+            const drinkSelect = document.getElementById('modal-promo-refri');
+            drinkContainer.classList.toggle('hidden', isBurguinho);
+            drinkSelect.innerHTML = '';
+            const drinks = needsLitroAndMultipleSauces ? menu.refrigerantesLitro : menu.refrigerantesLata;
+            drinks.forEach(drink => {
+                drinkSelect.innerHTML += `<option value="${drink.name}">${drink.name}</option>`;
+            });
+            document.getElementById('promo-drink-label').innerText = needsLitroAndMultipleSauces
+                ? '1. Escolha o Refrigerante de 1 Litro:'
+                : '1. Escolha o Refrigerante:';
+
+            const singleSauce = document.getElementById('single-sauce-container');
+            const multipleSauces = document.getElementById('promo-sauces-container');
+            singleSauce.classList.toggle('hidden', needsLitroAndMultipleSauces);
+            multipleSauces.classList.toggle('hidden', !needsLitroAndMultipleSauces);
+            if (needsLitroAndMultipleSauces) setupPromoSauces(isFomeGrande ? 3 : 2);
+            document.getElementById('modal-sauce').value = "";
+            document.getElementById('modal-obs').value = "";
+
+            setupAdicionaisModal();
+        }
+
+        function setupPromoSauces(quantity) {
+            const list = document.getElementById('promo-sauces-list');
+            document.getElementById('promo-sauces-label').innerText = `2. Escolha ${quantity} molhos (pode repetir ou escolher diferentes) *`;
+            list.innerHTML = '';
+            for (let index = 1; index <= quantity; index++) {
+                list.innerHTML += `<select class="promo-sauce-select w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 outline-none" required>
+                    <option value="" disabled selected>Selecione o molho ${index}...</option>
+                    <option value="Molho de Alho">Molho de Alho</option>
+                    <option value="Molho Barbecue">Molho Barbecue</option>
+                    <option value="Sem Molho">Não quero molho</option>
+                </select>`;
+            }
+        }
+
+        function setupAdicionaisModal() {
             const addsContainer = document.getElementById('modal-adicionais-list');
             addsContainer.innerHTML = '';
             
@@ -621,17 +704,24 @@
         function closeProductModal() {
             document.getElementById('product-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
-            currentSelectedBurger = null;
+            currentSelectedItem = null;
+            isPromotionItem = false;
         }
 
         function updateModalPrice() {
-            if (!currentSelectedBurger) return;
+            if (!currentSelectedItem) return;
 
-            const isCombo = document.getElementById('modal-combo').checked;
             const checkboxes = document.querySelectorAll(`input[name="modal-adds"]:checked`);
-            
-            let totalModal = isCombo ? currentSelectedBurger.comboPrice : currentSelectedBurger.price;
+            let basePrice = currentSelectedItem.price;
 
+            if (!isPromotionItem || currentSelectedItem.id === 'promo-burguinho') {
+                const isCombo = document.getElementById('modal-combo').checked;
+                if (isCombo) {
+                    basePrice = currentSelectedItem.comboPrice;
+                }
+            }
+
+            let totalModal = basePrice;
             checkboxes.forEach(cb => {
                 totalModal += parseFloat(cb.getAttribute('data-price'));
             });
@@ -639,19 +729,25 @@
             document.getElementById('modal-total-price').innerText = `R$ ${totalModal.toFixed(2)}`;
         }
 
-        function confirmBurgerAddition() {
-            if (!currentSelectedBurger) return;
+        function confirmProductAddition() {
+            if (!currentSelectedItem) return;
 
             const sauceSelect = document.getElementById('modal-sauce');
-            if (!sauceSelect.value) {
+            const multipleSauceSelects = [...document.querySelectorAll('.promo-sauce-select')];
+            const isMultipleSaucePromo = isPromotionItem && ['promo-duplo-nano', 'promo-fome-grande'].includes(currentSelectedItem.id);
+            if (isMultipleSaucePromo) {
+                if (multipleSauceSelects.some(select => !select.value)) {
+                    alert("Por favor, escolha todos os molhos antes de continuar!");
+                    multipleSauceSelects.find(select => !select.value)?.focus();
+                    return;
+                }
+            } else if (!sauceSelect.value) {
                 alert("Por favor, escolha um molho antes de continuar!");
                 sauceSelect.focus();
                 return;
             }
 
-            const burger = currentSelectedBurger;
-            const isCombo = document.getElementById('modal-combo').checked;
-            const comboRefri = document.getElementById('modal-combo-refri').value;
+            const item = currentSelectedItem;
             const sauce = sauceSelect.value;
             const obsText = document.getElementById('modal-obs').value.trim();
             const checkboxes = document.querySelectorAll(`input[name="modal-adds"]:checked`);
@@ -663,32 +759,36 @@
                 addsNames.push(cb.getAttribute('data-name'));
             });
 
-            let finalName = burger.name;
-            let badgeText = burger.badge;
+            let finalName = item.name;
+            let badgeText = item.badge;
+            let basePrice = item.price;
 
-            if (isCombo) {
-                finalName += ` (COMBO: Batata + ${comboRefri})`;
+            if (!isPromotionItem || item.id === 'promo-burguinho') {
+                const isCombo = document.getElementById('modal-combo').checked;
+                const comboRefri = document.getElementById('modal-combo-refri').value;
+                if (isCombo) {
+                    basePrice = item.comboPrice;
+                    finalName += ` (COMBO: Batata + ${comboRefri}) `;
+                }
+            }
+            if (isPromotionItem && item.id !== 'promo-burguinho') {
+                const promoRefri = document.getElementById('modal-promo-refri').value;
+                finalName += ` (Refri: ${promoRefri})`;
             }
 
-            if (sauce !== "Não quero molho") {
-                finalName += ` [Molho: ${sauce}]`;
-            } else {
-                finalName += ` [Sem Molho]`;
+            if (isMultipleSaucePromo) {
+                finalName += ` [Molhos: ${multipleSauceSelects.map(select => select.value).join(', ')}]`;
+            } else if (sauce) {
+                finalName += sauce !== "Não quero molho" ? ` [Molho: ${sauce}]` : ` [Sem Molho]`;
             }
 
             if (addsNames.length > 0) finalName += ` + Adic: (${addsNames.join(", ")})`;
             if (obsText) finalName += ` | Obs: ${obsText}`;
-            
-            const finalPrice = (isCombo ? burger.comboPrice : burger.price) + addsPrice;
+
+            const finalPrice = basePrice + addsPrice;
             
             addToCart(finalName, finalPrice, badgeText);
             closeProductModal();
-        }
-
-        function addPromotionToCart(id) {
-            const promo = menu.promotions.find(item => item.id === id);
-            if (!promo) return;
-            addToCart(promo.name, promo.price, promo.tag);
         }
 
         function addToCart(name, price, badge = '') {
