@@ -649,25 +649,28 @@
             const multipleSauces = document.getElementById('promo-sauces-container');
             singleSauce.classList.toggle('hidden', needsLitroAndMultipleSauces);
             multipleSauces.classList.toggle('hidden', !needsLitroAndMultipleSauces);
-            if (needsLitroAndMultipleSauces) setupPromoSauces(isFomeGrande ? 3 : 2);
+            if (needsLitroAndMultipleSauces) setupPromoSauces(isFomeGrande ? ['Burgue top', 'Burgue especial', 'Flash'] : ['Burgue duplo', 'Nana burgue']);
             document.getElementById('modal-sauce').value = "";
             document.getElementById('modal-obs').value = "";
 
             setupAdicionaisModal();
         }
 
-        function setupPromoSauces(quantity) {
+        function setupPromoSauces(itemLabels) {
             const list = document.getElementById('promo-sauces-list');
-            document.getElementById('promo-sauces-label').innerText = `2. Escolha ${quantity} molhos (pode repetir ou escolher diferentes) *`;
+            document.getElementById('promo-sauces-label').innerText = '2. Escolha o molho de cada hambúrguer *';
             list.innerHTML = '';
-            for (let index = 1; index <= quantity; index++) {
-                list.innerHTML += `<select class="promo-sauce-select w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 outline-none" required>
-                    <option value="" disabled selected>Selecione o molho ${index}...</option>
-                    <option value="Molho de Alho">Molho de Alho</option>
-                    <option value="Molho Barbecue">Molho Barbecue</option>
-                    <option value="Sem Molho">Não quero molho</option>
-                </select>`;
-            }
+            itemLabels.forEach((itemLabel, index) => {
+                list.innerHTML += `<div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wide mb-1">${itemLabel}</label>
+                    <select class="promo-sauce-select w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-800 outline-none" data-item-label="${itemLabel}" required>
+                        <option value="" disabled selected>Escolha o molho do ${itemLabel}...</option>
+                        <option value="Molho de Alho">Molho de Alho</option>
+                        <option value="Molho Barbecue">Molho Barbecue</option>
+                        <option value="Sem Molho">Não quero molho</option>
+                    </select>
+                </div>`;
+            });
         }
 
         function setupAdicionaisModal() {
@@ -777,7 +780,8 @@
             }
 
             if (isMultipleSaucePromo) {
-                finalName += ` [Molhos: ${multipleSauceSelects.map(select => select.value).join(', ')}]`;
+                const sauceDetails = multipleSauceSelects.map(select => `${select.dataset.itemLabel}: ${select.value}`).join(' | ');
+                finalName += ` [Molhos: ${sauceDetails}]`;
             } else if (sauce) {
                 finalName += sauce !== "Não quero molho" ? ` [Molho: ${sauce}]` : ` [Sem Molho]`;
             }
