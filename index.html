@@ -48,9 +48,75 @@
         .adicional-item { border-bottom: 1px solid #f1f5f9; padding: 12px 0; }
         .adicional-item:last-child { border-bottom: none; }
         
-        /* Estilo do Slider */
-        .swiper { width: 100%; padding-top: 10px; padding-bottom: 20px; }
-        .swiper-slide { background-position: center; background-size: cover; width: 240px; }
+        /* Slider premium de campanhas: preserva a imagem inteira, sem cortes */
+        .promo-slider-shell {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #111827, #431407 70%, #7c2d12);
+            box-shadow: 0 18px 45px rgba(67, 20, 7, 0.22);
+            border: 1px solid rgba(249, 115, 22, 0.35);
+        }
+        .promoSlider { width: 100%; overflow: hidden; }
+        .promoSlider .swiper-slide {
+            width: 100%;
+            height: clamp(190px, 48vw, 330px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #171717;
+        }
+        .promoSlider .swiper-slide img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+        .promo-slider-label {
+            position: relative;
+            z-index: 3;
+            display: block;
+            width: max-content;
+            margin: 10px auto 0;
+            padding: 7px 11px;
+            border-radius: 999px;
+            color: #fff7ed;
+            background: rgba(124, 45, 18, 0.88);
+            border: 1px solid rgba(255, 237, 213, 0.38);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+            backdrop-filter: blur(8px);
+        }
+        .promoSlider .swiper-button-next,
+        .promoSlider .swiper-button-prev {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            color: #fff;
+            background: rgba(17, 24, 39, 0.68);
+            backdrop-filter: blur(8px);
+        }
+        .promoSlider .swiper-button-next::after,
+        .promoSlider .swiper-button-prev::after { font-size: 14px; font-weight: 900; }
+        .promoSlider .swiper-pagination-bullet { background: #fed7aa; opacity: .75; }
+        .promoSlider .swiper-pagination-bullet-active { background: #f97316; opacity: 1; width: 22px; border-radius: 999px; }
+        .promo-card {
+            background: linear-gradient(145deg, #ffffff, #fff7ed);
+            border: 1px solid #fed7aa;
+            box-shadow: 0 10px 25px rgba(124, 45, 18, 0.09);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+        .promo-card:hover { transform: translateY(-4px); border-color: #fb923c; box-shadow: 0 18px 30px rgba(124, 45, 18, 0.16); }
+        .promo-image-frame {
+            height: 170px;
+            background: radial-gradient(circle at center, #fff7ed, #ffedd5);
+        }
+        @media (max-width: 480px) {
+            .promoSlider .swiper-button-next, .promoSlider .swiper-button-prev { display: none; }
+            .promo-image-frame { height: 145px; }
+        }
     </style>
 </head>
 <body class="pb-32">
@@ -60,12 +126,32 @@
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhjUJYrLDqc2Le2cs1k9f2FBv_JJjYvKBKKNVL-zHHX3w8IETT-atvE0a93rQPQZcCE4KNhPM-YjbSFvbHQuay-BusWYXli5DlPEN2thxvtYEfjao2E6EyFsaFOPsHidNbJ7f28QZ-QKYBYKx8tFBZhVWDQmrvXLCME-Nu2MRBvMQ8202qx8reoxhEEGas/s1600/316538.jpg" alt="Burguila Topo" class="w-full h-auto object-cover block bg-white">
     </header>
 
-    <!-- Slider de Hambúrgueres -->
-    <div class="max-w-2xl mx-auto px-4 mt-2">
-        <div class="swiper burgerSlider">
-            <div class="swiper-wrapper" id="slider-content"></div>
+    <!-- Slider premium exclusivo das campanhas enviadas -->
+    <section class="max-w-2xl mx-auto px-3 mt-3" aria-label="Promoções em destaque">
+        <div class="promo-slider-shell">
+            <div class="promo-slider-label"><i class="fa-solid fa-bolt"></i> OFERTAS EM DESTAQUE</div>
+            <div class="swiper promoSlider">
+                <div class="swiper-wrapper" id="promo-slider-content"></div>
+                <div class="swiper-button-prev" aria-label="Imagem anterior"></div>
+                <div class="swiper-button-next" aria-label="Próxima imagem"></div>
+                <div class="swiper-pagination"></div>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Categoria independente das promoções, logo abaixo do slide -->
+    <section class="max-w-2xl mx-auto px-4 mt-6 mb-12" aria-labelledby="promocoes-title">
+        <div class="menu-section !border-orange-600 !mb-5">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <span class="text-[10px] font-black tracking-[0.2em] text-orange-600 uppercase">Seleção especial</span>
+                    <h2 id="promocoes-title" class="cursive text-4xl leading-tight">Promoções Exclusivas</h2>
+                </div>
+                <span class="hidden sm:flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-3 py-2 whitespace-nowrap"><i class="fa-solid fa-cart-plus"></i> Adicione direto</span>
+            </div>
+        </div>
+        <div id="promotions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    </section>
 
     <main class="max-w-2xl mx-auto px-4 mt-4">
         <section class="mb-12">
@@ -249,6 +335,19 @@
 
     <script>
         const menu = {
+            promotionalBanners: [
+                "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhVUs02A5vuP3jEqdJTj60lYjWEIqTSnlw4EtzV2YSPokQLXy_A8eU-eHEHpxDSrXPspywVv42V8-EC-LGTQYtx5CkZ95UL0VH2Y26iSi7NoULgzLOPXQuSkzAcmbt1yxIos4UijDuCC3QYGgrNnXQEHG-zDMTKncpDOi8c6lAWj1YWq0jxHSftIpdGN9Q/s1600/328287.jpg",
+                "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjnNQNmsqkYBTTloe2Sk8Ce1WDH0aN7a-cvX8bNLOF-6a9CpFUWXudnkDKgChD2CdaTrH1iZaq4nsaaBa2nCMvRSQqToeyNIPfyQiwiUzvJ0sEKCdGLplwAwmn_p86cTV5jkCQ-djRDZksHNG4nj8ngxCG4FzG7WqXQVoCExg6b8E71437_5GCLf5lmqq8/s1600/328288.jpg",
+                "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiER92rS2eFpOLfxv7YjCsWvUFMp5mVGvwqVf1cxLg3P6WPaMdUA0cg6_bPhZGXSATEnzf8LOg6bgFRUee0jwRiu6PfTalr5L6KO5YmYtS0XZutRN45d46r4QSvS_GidBmA1BP1a-UrPG0AqCLH14YvSXokLmn2wt6Eeb_LLKiJHWfo2JgkZV90mPJPYfU/s1600/328289.jpg",
+                "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTkcD5oxpGW7VViLZnTr_mfDIwz5JZ-lfykCe-RIF1Il5FpRLrh6h6sL1fGxvEmVDIx9nRkUxlNyY0nCV-nKFoRBhWXDj-PWgJ2wsrx8Jbi51KhP5YNGYaFbFQPaENm6vxlcmGdQcZ40j_3U7Kj8I8QVnuCJ83z-Wuo5Q0eMqSPymy1VFl4Gtdw5ncOAY/s1600/328290.jpg",
+                "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhiYlM4XSyxvdcoJl_HRyYTrvYTB69jKHk2UUEgcNp5SAXzAv8r6YadP2amEeTsqhoSI__o4-fYxuiESHyHmSF85HRgUD4D7to3SVFsm1hF-lJwwF2GAEcjPiOEbYpolmv0nqDDZNEYUcXFa1-6nm3jvFHczOENlRdHvtlTd51RyH2HNXDHNGHRqkQomnE/s1600/328291.jpg"
+            ],
+            promotions: [
+                { id: "promo-burguinho", name: "Burguinho", description: "Lanche promocional • oferta ilimitada", price: 9.99, tag: "OFERTA ILIMITADA", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiuM8dKr4a4pLXQAbsPqEyu93i1UKZrT_m5QhubXrMrD3pJubxcnKKbusX_XhQLZXND6lEEDb2Y0IOuk21O3QSSpf3vhBZ0brbPiP1M5H_zcWsF83_4HU-ZrtuPYm3CsXlDbYS2o1sNlc6KsTPomQNVAxGiOATJe-i1RB1ELu95jH6o6c52sthz865HB70/s1600/328398.jpg" },
+                { id: "promo-agridoce", name: "Combo Lançamento Agridoce Especial", description: "Agridoce especial + batata frita + refrigerante de 350ml", price: 40, tag: "COMBO LANÇAMENTO", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgr3hUN4CCq3HIFhjLz6goxinyrLYwXskG55wOaFuo9IP8wr5z1zyBCSVMYijBsMDyJZ0kiy7bZNB1_2Dk0k11I1DENr73X0jGdjEr-baiqIVPH-Xwa5aiKIm3LOOfIPboBwjS42otwz-cyBK3XoMp94bx6XRc6oaUqEGbHQvaBtGjHct0atFt8tYjUhsQ/s1600/328399.jpg" },
+                { id: "promo-duplo-nana", name: "Combo Duplo & Nana", description: "Burgue duplo + Nana burgue + batata frita + refrigerante de 1L", price: 70, tag: "COMBO PARA COMPARTILHAR", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgIEMWG9njzgCEtIv5jddBDRhi2hSaX69M40NSudAJaEcpnMEFQaXNP2MYMThaLRuDj5pltsbOvgj4RAhZZzcxaobXzfOrmYC1qG3-5psFpkwYK6lVQQEnSo7OZNugV9mZTVjU80A-eD19NAisJ-oJ3rAN9AgDPMGLTV-czX-AugcvU5FlwfWnHSzWLKoI/s1600/328400.jpg" },
+                { id: "promo-fome-grande", name: "Combo Fome Grande", description: "Burgue top + Burgue especial + Flash + 2 batatas fritas + refrigerante de 1L", price: 100, tag: "PARA MATAR A FOME", image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJtVIYujGrKBp9o9fcHbsHavn6XEPGQryHzKofFLwS5GdVs752ruG0vwEibf-m7VXEPp4JMLJcOPYamZ_b0115mZALMyVTYx1zBu2Grw2kozgGbqhu3bEJJeTi40zgt743T2u7UhT30mDTJYTVoE_dNSFApPDvRK_0iRjr8MoU78KJDiwoT-cfsrI0ICo/s1600/328401.jpg" }
+            ],
             burgers: [
                 { id: 1, name: "1° Burgue Flash", desc: "Pão brioche, hambúrguer 130g e queijo mussarela", badge: "Rápido E Delicioso!", price: 20, comboPrice: 31, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg89ahCZq6y01LvMGYM-thfs93-OaMu8Z0iHvHHgKX1naFu5zc0J9kYgjKVdH4apDziO1TK8CC8Lv0ZWz0086ZGdU2aKj7WlGZmk4Z9rS_wXFF-SNpbvksWTMtFStW_oFCyq7gEDujGVQ5ZOnteWwhvBiu_2a8ctkc4CImn7-JcXTn_7h-rUFQVFoPqht0/s1280/232526.jpg" },
                 { id: 2, name: "2° Burguinho", desc: "Pão brioche, hambúrguer 130g, queijo mussarela derretido e salada de alface e tomate", badge: "Um Clássico Irresistível!", price: 22, comboPrice: 33, image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjznltoRlvWs_YW2BQDRVuTkevNUnSLDn38ND_6h4v16dGM46nSCVp0_i1VtTuYGmi7ZU1Hzmu1ays6v3ZHK2M2aGGSrEBh2BYGITZjGGOWnlMjy6B9h7ynLRkEvMymJafJRYKZgXL0VrS_5H3OwUnjeUIs7nduxFf_OAP2C13xCZK55F-hQElhsYNtTo8/s1280/232519.jpg" },
@@ -315,29 +414,50 @@
         let cart = [];
         let currentSelectedBurger = null;
 
-        const slider = document.getElementById('slider-content');
-        menu.burgers.forEach(b => {
-            slider.innerHTML += `
+        const promoSliderContent = document.getElementById('promo-slider-content');
+        menu.promotionalBanners.forEach((image, index) => {
+            promoSliderContent.innerHTML += `
                 <div class="swiper-slide">
-                    <div onclick="openProductModal(${b.id})" class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm cursor-pointer hover:border-orange-500 transition">
-                        <img src="${b.image}" class="w-full h-36 object-cover">
-                        <div class="p-2.5">
-                            <h3 class="font-bold text-orange-600 text-xs truncate">${b.name}</h3>
-                            <p class="text-[10px] text-slate-500 italic mt-0.5 truncate">"${b.badge}"</p>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    <img src="${image}" alt="Banner promocional ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}">
+                </div>`;
         });
 
-        const swiper = new Swiper('.burgerSlider', {
-            slidesPerView: 2.2,
-            spaceBetween: 12,
+        const promoSwiper = new Swiper('.promoSlider', {
+            slidesPerView: 1,
+            spaceBetween: 0,
             loop: true,
-            autoplay: { delay: 2500, disableOnInteraction: false },
+            speed: 850,
+            autoplay: { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true },
+            pagination: { el: '.promoSlider .swiper-pagination', clickable: true },
+            navigation: { nextEl: '.promoSlider .swiper-button-next', prevEl: '.promoSlider .swiper-button-prev' }
         });
 
         function render() {
+            const promotionsList = document.getElementById('promotions-list');
+            promotionsList.innerHTML = '';
+            menu.promotions.forEach(promo => {
+                promotionsList.innerHTML += `
+                    <article class="promo-card rounded-2xl overflow-hidden flex flex-col">
+                        <div class="promo-image-frame flex items-center justify-center p-2">
+                            <img src="${promo.image}" alt="${promo.name}" class="w-full h-full object-contain" loading="lazy">
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="self-start text-[9px] font-black uppercase tracking-wider text-orange-700 bg-orange-100 border border-orange-200 rounded-full px-2.5 py-1">${promo.tag}</span>
+                            <h3 class="font-black text-lg leading-tight text-slate-900 mt-3">${promo.name}</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed mt-1 flex-1">${promo.description}</p>
+                            <div class="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-orange-100">
+                                <div>
+                                    <span class="block text-[9px] uppercase font-bold tracking-wider text-orange-600">Por apenas</span>
+                                    <strong class="block text-3xl leading-none font-black text-orange-700">R$ ${promo.price.toFixed(2).replace('.', ',')}</strong>
+                                </div>
+                                <button type="button" onclick="addPromotionToCart('${promo.id}')" class="btn-primary rounded-xl px-4 py-3 text-xs uppercase tracking-wide flex items-center gap-2 whitespace-nowrap" aria-label="Adicionar ${promo.name} ao carrinho">
+                                    <i class="fa-solid fa-cart-plus"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </article>`;
+            });
+
             const bList = document.getElementById('burgers-list');
             bList.innerHTML = '';
             menu.burgers.forEach(item => {
@@ -563,6 +683,12 @@
             
             addToCart(finalName, finalPrice, badgeText);
             closeProductModal();
+        }
+
+        function addPromotionToCart(id) {
+            const promo = menu.promotions.find(item => item.id === id);
+            if (!promo) return;
+            addToCart(promo.name, promo.price, promo.tag);
         }
 
         function addToCart(name, price, badge = '') {
