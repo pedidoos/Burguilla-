@@ -1605,16 +1605,19 @@ initPromoSwiper();
 
         function ensurePromoCustomizationCards(){
             document.querySelectorAll('.product-card').forEach(card=>{
-                const product=allManagedProducts().find(p=>p.id===card.dataset.productId);
-                const name=String(product?.name||card.querySelector('.product-name')?.textContent||'');
+                const shownName=String(card.querySelector('.product-name')?.textContent||'').trim();
+                const product=allManagedProducts().find(p=>p.id===card.dataset.productId||String(p.name||'').trim()===shownName);
+                const name=String(product?.name||shownName);
                 const category=String(product?.category||card.closest('.category-section')?.id||'').toLowerCase();
-                const needs=/promoc|fome grande|agridoce especial|duplo\s*(?:&|e)\s*nana?/i.test(category+' '+name);
-                let button=card.querySelector('.promo-customize-btn');
-                if(!needs){button?.remove();return;}
-                if(!button){
-                    button=document.createElement('button');button.type='button';button.className='promo-customize-btn';button.textContent='Escolher refri e molhos';
-                    button.addEventListener('click',event=>{event.stopPropagation();const p=allManagedProducts().find(x=>x.id===card.dataset.productId)||product;if(p)openProductDetails(p.name,p.description||'',Number(p.price||0),categoryLabel(p.category),p.image||'');});
-                    card.querySelector('.product-info-left')?.appendChild(button);
+                const needs=/(promoc|promo)/i.test(category+' '+name)&&/(fome grande|agridoce|duplo\s*(?:&|e)\s*nana?)/i.test(name);
+                card.querySelector('.promo-customize-btn')?.remove();
+                if(needs){
+                    card.style.cursor='pointer';
+                    card.onclick=()=>{
+                        const p=allManagedProducts().find(x=>String(x.name||'').trim()===String(card.querySelector('.product-name')?.textContent||'').trim())||product;
+                        if(!p)return;
+                        openProductDetails(p.name,p.description||'',Number(p.price||0),categoryLabel(p.category||category),p.image||'');
+                    };
                 }
             });
         }
@@ -2114,7 +2117,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             message+=`⭐ *TOTAL GERAL:* R$ ${total.toFixed(2).replace('.',',')}\n-------------------------------------------\n⏱️ *Tempo de espera: ${managedSettings.waitTime||40} minutos*\n\n🕒 _Obrigado pela preferência!_`;
             return message;
         }
-        function receiptText(order){const text=cleanPrinterText(orderWhatsAppText(order));return '\x1b@'+text+'\n\n\n\x1d\x56\x00';}
+        function receiptText(order){const width=Number(getPrintTemplates().dispatch?.width||42),clean=cleanPrinterText(orderWhatsAppText(order)),wrapped=clean.split(/\r?\n/).flatMap(line=>{if(!line)return [''];const rows=[];for(let i=0;i<line.length;i+=width)rows.push(line.slice(i,i+width));return rows;}).join('\n');return '\x1b@'+wrapped+'\n\n\n\x1d\x56\x00';}
         function textBytes(text) { return new TextEncoder().encode(text); }
         function joinBytes(chunks) { const total = chunks.reduce((n, a) => n + a.length, 0), result = new Uint8Array(total); let at = 0; chunks.forEach(a => { result.set(a, at); at += a.length; }); return result; }
 
@@ -2209,11 +2212,11 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             modalImg.src = imageUrl;
             modalImg.alt = name;
 
-            const isBurger = category === 'Hambúrgueres',isFomeGrande=/fome grande/i.test(String(name||'')),isAgridoce=/agridoce especial/i.test(String(name||'')),isDuploNano=/duplo.*nan[ao]|nan[ao].*duplo/i.test(String(name||''));
+            const isBurger = category === 'Hambúrgueres',isFomeGrande=/fome grande/i.test(String(name||'')),isAgridoceCombo=/(?:combo|lan[cç]amento).*agridoce|agridoce.*combo/i.test(String(name||'')),isDuploNano=/duplo.*nan[ao]|nan[ao].*duplo/i.test(String(name||''));
             const fomeBox=document.getElementById('fomeGrandeOptions');if(fomeBox)fomeBox.style.display=isFomeGrande?'block':'none';if(isFomeGrande){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('litro')||/1\s*l(\.|itro)?\b/i.test(String(p.name||''))));const ds=document.getElementById('fomeGrandeDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante de 1 litro</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');['fomeGrandeSauce1','fomeGrandeSauce2','fomeGrandeSauce3'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
-            const agridoceBox=document.getElementById('agridoceOptions');if(agridoceBox)agridoceBox.style.display=isAgridoce?'block':'none';if(isAgridoce){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('lata')||/lata/i.test(String(p.name||'')))),ds=document.getElementById('agridoceDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante em lata</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');const ss=document.getElementById('agridoceSauce');if(ss)ss.value='';}
+            const agridoceBox=document.getElementById('agridoceOptions');if(agridoceBox)agridoceBox.style.display=isAgridoceCombo?'block':'none';if(isAgridoceCombo){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('lata')||/lata/i.test(String(p.name||'')))),ds=document.getElementById('agridoceDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante em lata</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');const ss=document.getElementById('agridoceSauce');if(ss)ss.value='';}
             const duploBox=document.getElementById('duploNanoOptions');if(duploBox)duploBox.style.display=isDuploNano?'block':'none';if(isDuploNano){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('litro')||/1\s*l(\.|itro)?\b/i.test(String(p.name||'')))),ds=document.getElementById('duploNanoDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante de 1 litro</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');['duploNanoSauce1','duploNanoSauce2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
-            const transformButton=document.getElementById('transformBurgerFromDetails');if(transformButton){transformButton.style.display=isBurger?'block':'none';const cb=transformButton.querySelector('input');if(cb)cb.checked=false;}
+            const transformButton=document.getElementById('transformBurgerFromDetails');if(transformButton){transformButton.style.display=(isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo)?'block':'none';const cb=transformButton.querySelector('input');if(cb)cb.checked=false;}
             const sauceContainer=document.getElementById('modalSauceContainer');if(sauceContainer)sauceContainer.style.display=isBurger?'block':'none';const sauceSelect=document.getElementById('productSauceSelect');if(sauceSelect)sauceSelect.value='';
             const removalsContainer = document.getElementById('modalRemovalsContainer');
             const removalsList = document.getElementById('modalRemovalsList');
@@ -2257,7 +2260,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
                 const selectedRemovals = [];
                 const selectedSauce = isBurger ? (document.getElementById('productSauceSelect')?.value||'') : '';if(isBurger&&!selectedSauce){alert('Escolha obrigatoriamente o molho: alho ou barbecue.');return;}
                 if(isDuploNano){const drinkId=document.getElementById('duploNanoDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauces=['duploNanoSauce1','duploNanoSauce2'].map(id=>document.getElementById(id)?.value||'');if(!drink)return alert('Escolha o refrigerante de 1 litro.');if(sauces.some(x=>!x))return alert('Escolha o molho do Burgue Duplo e da Nana Burgue.');cart.push({name:`${name} [${drink.name}] [Molhos: Duplo ${sauces[0]}, Nana ${sauces[1]}]`,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isDuploNano:true,details:{drinkName:drink.name,sauces}});toggleDetailsModal(false);updateCart();return;}
-                if(isAgridoce){const drinkId=document.getElementById('agridoceDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauce=document.getElementById('agridoceSauce')?.value;if(!drink)return alert('Escolha o refrigerante em lata.');if(!sauce)return alert('Escolha obrigatoriamente o molho: alho ou barbecue.');cart.push({name:`${name} [${drink.name}] [Molho: ${sauce}]`,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isAgridoce:true,details:{drinkName:drink.name,sauce}});toggleDetailsModal(false);updateCart();return;}
+                if(isAgridoceCombo){const drinkId=document.getElementById('agridoceDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauce=document.getElementById('agridoceSauce')?.value;if(!drink)return alert('Escolha o refrigerante em lata.');if(!sauce)return alert('Escolha obrigatoriamente o molho: alho ou barbecue.');cart.push({name:`${name} [${drink.name}] [Molho: ${sauce}]`,price:Number(price||0),category:'Hambúrgueres',qty:1,isAgridoce:true,details:{drinkName:drink.name,sauce}});toggleDetailsModal(false);updateCart();return;}
                 if(isFomeGrande){const drinkId=document.getElementById('fomeGrandeDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauces=['fomeGrandeSauce1','fomeGrandeSauce2','fomeGrandeSauce3'].map(id=>document.getElementById(id)?.value||'');if(!drink)return alert('Escolha o refrigerante de 1 litro.');if(sauces.some(x=>!x))return alert('Escolha os 3 molhos do Combo Fome Grande.');const comboName=`${name} [${drink.name}] [Molhos: ${sauces.join(', ')}]`;cart.push({name:comboName,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isFomeGrande:true,details:{drinkName:drink.name,sauces}});toggleDetailsModal(false);updateCart();return;}
                 if (isBurger) {
                     availableAddons.forEach(addon => {
@@ -2506,7 +2509,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
                                     <h4>${displayName}</h4>
                                     <span>R$ ${item.price.toFixed(2).replace('.', ',')}</span>
                                 </div>
-                                ${item.category==='Hambúrgueres'&&!item.isComboCasal?`<label class="cart-combo-button"><input type="checkbox" onchange="toggleCartComboCheckbox(${cartIndex},this.checked)"> 🍟 Transformar em combo <strong>+ R$ 11,00</strong></label>`:''}
+                                ${item.category==='Hambúrgueres'&&!item.isComboCasal&&!item.isDuploNano&&!item.isFomeGrande&&!item.isAgridoce?`<label class="cart-combo-button"><input type="checkbox" onchange="toggleCartComboCheckbox(${cartIndex},this.checked)"> 🍟 Transformar em combo <strong>+ R$ 11,00</strong></label>`:''}
                                 <div class="quantity-control">
                                     <button class="btn-qty" onclick="changeQtyByIndex(${cartIndex}, -1)">-</button>
                                     <span>${item.qty}</span>
