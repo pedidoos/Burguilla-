@@ -2085,7 +2085,13 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
         }
 
         function cleanPrinterText(value) {
-            return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7E\n\r]/g, '');
+            return String(value ?? '').normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/^\s*▪️\s*/gm, '- ')
+                .replace(/^\s*•\s*/gm, '   - ')
+                .replace(/[\u{1F000}-\u{1FAFF}\u2600-\u27BF]/gu, '')
+                .replace(/[\*_]/g, '')
+                .replace(/[^\x20-\x7E\n\r]/g, '');
         }
         function moneyPrinter(value) { return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ','); }
         function orderWhatsAppText(order){
@@ -2217,7 +2223,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             const agridoceBox=document.getElementById('agridoceOptions');if(agridoceBox)agridoceBox.style.display=isAgridoceCombo?'block':'none';if(isAgridoceCombo){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('lata')||/lata/i.test(String(p.name||'')))),ds=document.getElementById('agridoceDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante em lata</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');const ss=document.getElementById('agridoceSauce');if(ss)ss.value='';}
             const duploBox=document.getElementById('duploNanoOptions');if(duploBox)duploBox.style.display=isDuploNano?'block':'none';if(isDuploNano){const drinks=allManagedProducts().filter(p=>p.deleted!==true&&p.available!==false&&!/suco/i.test(String(p.category||'')+' '+String(p.name||''))&&(String(p.category||'').toLowerCase().includes('litro')||/1\s*l(\.|itro)?\b/i.test(String(p.name||'')))),ds=document.getElementById('duploNanoDrink');if(ds)ds.innerHTML='<option value="">Selecione o refrigerante de 1 litro</option>'+drinks.map(p=>`<option value="${escapeAdminText(p.id||p.name)}">${escapeAdminText(p.name)}</option>`).join('');['duploNanoSauce1','duploNanoSauce2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
             const transformButton=document.getElementById('transformBurgerFromDetails');if(transformButton){transformButton.style.display=(isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo)?'block':'none';const cb=transformButton.querySelector('input');if(cb)cb.checked=false;}
-            const sauceContainer=document.getElementById('modalSauceContainer');if(sauceContainer)sauceContainer.style.display=isBurger?'block':'none';const sauceSelect=document.getElementById('productSauceSelect');if(sauceSelect)sauceSelect.value='';
+            const sauceContainer=document.getElementById('modalSauceContainer');if(sauceContainer)sauceContainer.style.display=(isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo)?'block':'none';const sauceSelect=document.getElementById('productSauceSelect');if(sauceSelect)sauceSelect.value='';
             const removalsContainer = document.getElementById('modalRemovalsContainer');
             const removalsList = document.getElementById('modalRemovalsList');
             const noteContainer = document.getElementById('modalNoteContainer');
@@ -2236,7 +2242,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             const addonsContainer = document.getElementById('modalAddonsContainer');
             const addonsList = document.getElementById('modalAddonsList');
             addonsList.innerHTML = '';
-            if (isBurger) {
+            if (isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo) {
                 addonsContainer.style.display = 'block';
                 availableAddons.forEach(addon => {
                     addonsList.innerHTML += `
@@ -2258,8 +2264,8 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             addBtn.onclick = function() {
                 const selectedAddons = [];
                 const selectedRemovals = [];
-                const selectedSauce = isBurger ? (document.getElementById('productSauceSelect')?.value||'') : '';if(isBurger&&!selectedSauce){alert('Escolha obrigatoriamente o molho: alho ou barbecue.');return;}
-                if(isDuploNano){const drinkId=document.getElementById('duploNanoDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauces=['duploNanoSauce1','duploNanoSauce2'].map(id=>document.getElementById(id)?.value||'');if(!drink)return alert('Escolha o refrigerante de 1 litro.');if(sauces.some(x=>!x))return alert('Escolha o molho do Burgue Duplo e da Nana Burgue.');cart.push({name:`${name} [${drink.name}] [Molhos: Duplo ${sauces[0]}, Nana ${sauces[1]}]`,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isDuploNano:true,details:{drinkName:drink.name,sauces}});toggleDetailsModal(false);updateCart();return;}
+                const selectedSauce = isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo ? (document.getElementById('productSauceSelect')?.value||'') : '';if(isBurger&&!isDuploNano&&!isFomeGrande&&!isAgridoceCombo&&!selectedSauce){alert('Escolha obrigatoriamente o molho: alho ou barbecue.');return;}
+                if(isDuploNano){const drinkId=document.getElementById('duploNanoDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauces=['duploNanoSauce1','duploNanoSauce2'].map(id=>document.getElementById(id)?.value||'');if(!drink)return alert('Escolha o refrigerante de 1 litro.');cart.push({name:`${name} [${drink.name}] [Molhos: Duplo ${sauces[0]}, Nana ${sauces[1]}]`,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isDuploNano:true,details:{drinkName:drink.name,sauces}});toggleDetailsModal(false);updateCart();return;}
                 if(isAgridoceCombo){const drinkId=document.getElementById('agridoceDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauce=document.getElementById('agridoceSauce')?.value;if(!drink)return alert('Escolha o refrigerante em lata.');if(!sauce)return alert('Escolha obrigatoriamente o molho: alho ou barbecue.');cart.push({name:`${name} [${drink.name}] [Molho: ${sauce}]`,price:Number(price||0),category:'Hambúrgueres',qty:1,isAgridoce:true,details:{drinkName:drink.name,sauce}});toggleDetailsModal(false);updateCart();return;}
                 if(isFomeGrande){const drinkId=document.getElementById('fomeGrandeDrink')?.value,drink=allManagedProducts().find(p=>String(p.id||p.name)===String(drinkId)),sauces=['fomeGrandeSauce1','fomeGrandeSauce2','fomeGrandeSauce3'].map(id=>document.getElementById(id)?.value||'');if(!drink)return alert('Escolha o refrigerante de 1 litro.');if(sauces.some(x=>!x))return alert('Escolha os 3 molhos do Combo Fome Grande.');const comboName=`${name} [${drink.name}] [Molhos: ${sauces.join(', ')}]`;cart.push({name:comboName,price:Number(price||0),category:'Promoções Exclusivas',qty:1,isFomeGrande:true,details:{drinkName:drink.name,sauces}});toggleDetailsModal(false);updateCart();return;}
                 if (isBurger) {
