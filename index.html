@@ -2386,6 +2386,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             if(!show) { document.getElementById('changeValue').value = ''; }
         }
 
+        async function getNextDailyOrderNumber(){const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Fortaleza',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());const ref=db.ref('dailyOrderCounters/'+day),result=await ref.transaction(value=>Number(value||0)+1);if(!result.committed||!result.snapshot.exists())throw new Error('Não foi possível gerar o número sequencial do pedido.');return Number(result.snapshot.val());}
         async function sendWhatsApp() {
             if(!firebaseConfigured || !db){ alert('Este cardápio ainda está em modo de preparação. Configure o Firebase exclusivo do Burguila antes de enviar pedidos.'); return; }
             if(orderSending)return;
@@ -2414,7 +2415,7 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
                 }
             }
 
-            const fingerprint=JSON.stringify({phone:publicPhone(phoneClient),items:cart.map(i=>({id:i.id||i.name,qty:i.qty,price:i.price})),fulfillment:selectedFulfillment,zone:selectedDeliveryZone,payment:selectedPaymentMethod,total:getCartSubtotal()});const lastFingerprint=JSON.parse(localStorage.getItem('burguilaLastOrderFingerprint')||'null');if(lastFingerprint&&lastFingerprint.value===fingerprint&&Date.now()-Number(lastFingerprint.at||0)<90000){alert('Este pedido já está sendo processado. Aguarde a confirmação antes de enviar novamente.');return;}localStorage.setItem('burguilaLastOrderFingerprint',JSON.stringify({value:fingerprint,at:Date.now()}));const orderNum = Math.floor(1000 + Math.random() * 9000);
+            const fingerprint=JSON.stringify({phone:publicPhone(phoneClient),items:cart.map(i=>({id:i.id||i.name,qty:i.qty,price:i.price})),fulfillment:selectedFulfillment,zone:selectedDeliveryZone,payment:selectedPaymentMethod,total:getCartSubtotal()});const lastFingerprint=JSON.parse(localStorage.getItem('burguilaLastOrderFingerprint')||'null');if(lastFingerprint&&lastFingerprint.value===fingerprint&&Date.now()-Number(lastFingerprint.at||0)<90000){alert('Este pedido já está sendo processado. Aguarde a confirmação antes de enviar novamente.');return;}localStorage.setItem('burguilaLastOrderFingerprint',JSON.stringify({value:fingerprint,at:Date.now()}));let orderNum;try{orderNum=await getNextDailyOrderNumber();}catch(e){const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Fortaleza',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()),key='burguilaDailyOrderFallback_'+day;orderNum=Number(localStorage.getItem(key)||0)+1;localStorage.setItem(key,String(orderNum));console.warn('Contador diário Firebase indisponível; usando sequência local temporária.',e);}
             let subtotal = 0;
             let totalBurgersInCart = 0;
 
@@ -2457,8 +2458,6 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
             try {
                 // A correção é confirmar /orders antes de criar as cópias públicas.
                 await orderRef.set(orderPayload);
-                const savedOrder=await orderRef.once('value');
-                if(!savedOrder.exists())throw new Error('O pedido não foi confirmado no Firebase.');
             } catch(error) {
                 orderSending=false;
                 if(checkoutButton){checkoutButton.disabled=false;checkoutButton.textContent='Confirmar e enviar pedido';}
