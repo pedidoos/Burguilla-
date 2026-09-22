@@ -1495,6 +1495,8 @@ initPromoSwiper();
             hideInitialCatalog();
             cleanPublicPromoDuplicates();
             ensurePromoCustomizationCards();
+            catalogDefaults=collectCatalogDefaults();
+            applyManagedCatalog();
             if (isFriday) {
                 document.getElementById('tickerFridayPromo')?.style && (document.getElementById('tickerFridayPromo').style.display = 'inline-block');
             }
