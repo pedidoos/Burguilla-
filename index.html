@@ -1489,10 +1489,12 @@ initPromoSwiper();
 
         document.addEventListener('click', unlockNotificationAudio, {passive:true});
         setInterval(()=>{applyStoreAvailability();if(activeAdminTab==='orders'&&Object.keys(adminOrdersCache||{}).length)renderAdminOrders(adminOrdersCache);if(activeAdminTab==='kitchen'&&Object.keys(adminOrdersCache||{}).length)renderKitchenQueue();},60000);
+        function moveInitialCatalogToPublic(){const seed=document.getElementById('catalogSeed');if(!seed)return;seed.querySelectorAll('.product-card').forEach(card=>{const sec=card.closest('.category-section'),id=sec?.id||'';const name=card.querySelector('.product-name')?.textContent||'';if(id==='promocoes'||/burguinho|duplo.*nan[ao]|nan[ao].*duplo/i.test(name))return;const dest=document.getElementById(id)?.querySelector('.menu-grid');if(dest)dest.appendChild(card);});revealInitialCatalog();} 
         function hideInitialCatalog(){document.body.classList.remove('catalog-ready');document.querySelectorAll('.category-section,.categories-nav,#promoSliderWrapper,.promo-ticker-container,.burguila-promo-slider-wrap').forEach(el=>el.classList.add('initial-catalog-hidden'));}
         function revealInitialCatalog(){document.body.classList.add('catalog-ready');document.querySelectorAll('.category-section,.categories-nav,#promoSliderWrapper,.promo-ticker-container,.burguila-promo-slider-wrap').forEach(el=>el.classList.remove('initial-catalog-hidden'));}
         window.addEventListener('DOMContentLoaded', () => {
             hideInitialCatalog();
+            moveInitialCatalogToPublic();
             cleanPublicPromoDuplicates();
             ensurePromoCustomizationCards();
             if (isFriday) {
