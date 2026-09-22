@@ -2057,17 +2057,19 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                 (order.items||[]).forEach((item,index)=>{
                     const qty=Number(item.qty||1), details=item.details||{};
                     add('ITEM '+(index+1)+' — '+qty+'x '+(item.name||'Item'));
+                    // O molho deve sair imediatamente abaixo do hambúrguer/combinação.
+                    if(item.isFomeGrande&&details.sauces?.length)add('  MOLHOS: '+details.sauces.join(' | '));
+                    else if(item.isDuploNano&&details.sauces?.length)add('  MOLHOS: DUPLO — '+details.sauces[0]+' | NANA — '+(details.sauces[1]||''));
+                    else if(details.sauce)add('  MOLHO: '+details.sauce);
+                    else if(item.sauce)add('  MOLHO: '+item.sauce);
                     if(detailedKitchen&&item.category)add('  CATEGORIA: '+item.category);
                     if((cfg.showIngredients||detailedKitchen)&&detailedKitchen){const ingredients=orderItemIngredients(item);if(ingredients)add('  INGREDIENTES: '+ingredients);}
-                    if(item.isFomeGrande||details.sauces&&item.isFomeGrande){
+                    if(item.isFomeGrande){
                         if(details.drinkName)add('  REFRIGERANTE 1L: '+details.drinkName);
-                        if(details.sauces?.length)add('  MOLHOS: '+details.sauces.join(' | '));
                     }else if(item.isDuploNano){
                         if(details.drinkName)add('  REFRIGERANTE 1L: '+details.drinkName);
-                        if(details.sauces?.length)add('  MOLHOS: DUPLO — '+details.sauces[0]+' | NANA — '+(details.sauces[1]||''));
                     }else if(item.isAgridoce){
                         if(details.drinkName)add('  REFRIGERANTE LATA: '+details.drinkName);
-                        if(details.sauce)add('  MOLHO: '+details.sauce);
                     }else if(item.isComboCasal&&details){
                         if(details.burger1)add('  HAMBURGUER 1: '+details.burger1);
                         if(details.burger2&&details.burger2!=='Nenhum')add('  HAMBURGUER 2: '+details.burger2);
@@ -2075,9 +2077,7 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                         if(details.sodaName)add('  REFRIGERANTE: '+details.sodaName);
                         else if(details.juiceName)add('  SUCO 500ML: '+details.juiceName);
                         else if(Number(details.sodas||0)>0)add('  REFRIGERANTE: '+details.sodas+' unidade(s)');
-                        if(details.sauce)add('  MOLHO: '+details.sauce);
                     }
-                    if(item.sauce&&!item.isAgridoce&&!item.isFomeGrande&&!item.isDuploNano&&!details.sauce)add('  MOLHO: '+item.sauce);
                     if((cfg.showAddons||detailedKitchen)&&item.addonsDetails?.length)add('  ADICIONAIS: '+item.addonsDetails.map(a=>a.name||a).join(', '));
                     else if(detailedKitchen)add('  ADICIONAIS: nenhum');
                     if((cfg.showRemovals||detailedKitchen)&&item.removalsDetails?.length)add('  REMOVER: '+item.removalsDetails.map(a=>a.name||a).join(', '));
