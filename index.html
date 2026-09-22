@@ -1587,7 +1587,7 @@ initPromoSwiper();
         let appOpeningRevealTimer=null;
         const catalogCoreParts=['settings','overrides','products','categories'];
         let catalogRevealTimer=null, cachedCatalogRevision='', remoteCatalogRevision=null;
-        function revealAppOpening(){if(appOpeningRevealTimer)clearTimeout(appOpeningRevealTimer);const remaining=Math.max(0,APP_OPENING_MIN_MS-(Date.now()-appOpeningStartedAt));appOpeningRevealTimer=setTimeout(()=>document.body?.classList.remove('app-loading'),remaining);}
+        function revealAppOpening(){if(firebaseConfigured&&typeof catalogCoreParts!=='undefined'&&!catalogCoreParts.every(part=>catalogLiveParts[part]))return;if(appOpeningRevealTimer)clearTimeout(appOpeningRevealTimer);const remaining=Math.max(0,APP_OPENING_MIN_MS-(Date.now()-appOpeningStartedAt));appOpeningRevealTimer=setTimeout(()=>document.body?.classList.remove('app-loading'),remaining);}
         function revealCurrentCatalog(){if(catalogRevealTimer)clearTimeout(catalogRevealTimer);revealAppOpening();}
         function loadManagedCache(){try{localStorage.removeItem('burguilaCatalogCache');cachedCatalogRevision='';}catch(e){console.warn('Não foi possível limpar o cache antigo do catálogo',e);}}
         function saveManagedCache(){try{localStorage.setItem('burguilaCatalogCache',JSON.stringify({version:CATALOG_CACHE_VERSION,revision:String(managedSettings.catalogRevision||cachedCatalogRevision||'legacy'),settings:managedSettings,overrides:managedOverrides,products:managedProducts,inventory:managedInventory,categories:managedCategories,deleted:deletedProducts}));}catch(e){console.warn('Não foi possível salvar cache do catálogo',e);}}
