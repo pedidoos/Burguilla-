@@ -970,6 +970,10 @@
 .combo-check-option{display:flex;align-items:center;gap:9px;margin:8px 0 16px;padding:12px;border:1px solid var(--store-primary,#d7b85e);border-radius:9px;color:var(--store-text,#edf1f5);font-weight:800;font-size:.82rem;cursor:pointer}.combo-check-option input{width:18px;height:18px;accent-color:var(--store-primary,#d7b85e)}.combo-check-option strong{color:var(--store-primary,#d7b85e)}.cart-combo-button{display:block;margin:6px 0 0;padding:7px 10px;border:1px solid var(--store-primary,#d7b85e);border-radius:8px;background:transparent;color:var(--store-primary,#d7b85e);font-size:.72rem;font-weight:800;cursor:pointer}.cart-combo-button:hover{background:var(--store-primary,#d7b85e);color:var(--store-on-primary,#17120b)}
 
         .promo-customize-btn{display:block;width:100%;margin-top:10px;padding:9px 10px;border:1px solid var(--store-primary,#d7b85e);border-radius:8px;background:linear-gradient(135deg,#d7b85e,#a17d32);color:#17120b;font-weight:800;font-size:.78rem;cursor:pointer}.promo-customize-btn:hover{filter:brightness(1.08)}
+        /* Categorias exibidas juntas, sem rolagem horizontal */
+        .categories-nav{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;overflow:visible!important;gap:8px!important;}
+        .category-tab{flex:0 0 auto!important;}
+        @media(max-width:600px){.categories-nav{gap:6px!important;padding-top:8px!important;padding-bottom:8px!important}.category-tab{padding:7px 10px!important;font-size:.74rem!important}}
 </style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
