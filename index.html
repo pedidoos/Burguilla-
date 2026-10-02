@@ -1462,6 +1462,10 @@ initPromoSwiper();
         let ordersListenerAttached = false;
         let printerConnection = null;
         let printerCharacteristic = null;
+        let bluetoothPrinterDevice = null;
+        let bluetoothReconnectTimer = null;
+        let bluetoothReconnectAttempts = 0;
+        let bluetoothConnectInProgress = false;
         let printerMode = localStorage.getItem('burguilaPrinterMode') || '';
         let adminOrdersCache = {};
         let activeAdminTab = 'orders';
@@ -1524,6 +1528,7 @@ initPromoSwiper();
                 if (user) {
                     initRealtimeSync();
                     renderPrinterStatus();
+                    if (printerMode === 'bluetooth') restoreBluetoothPrinter();
                     initKitchenData();
                     initPermissionsPreview();
                     initDeliveryData();
@@ -1612,7 +1617,7 @@ initPromoSwiper();
         function allManagedCategories(){const list=Object.entries(defaultCategoryNames).map(([id,name])=>({id,name,...(managedCategories[id]||{})}));Object.entries(managedCategories).forEach(([id,x])=>{if(!list.some(c=>c.id===id))list.push({id,name:x.name||id,...x});});return list;}
         function isPermanentlyRemovedDuploNana(p){return /duplo.*nan[ao]|nan[ao].*duplo/i.test(String(p?.name||''))||/combo_duplo_nan[ao]/i.test(String(p?.id||''));}
         function deduplicateMilkShakeProducts(products){const winnerByFlavor=new Map(),categoryOf=p=>String(p.category||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\s_-]+/g,'').toLowerCase(),nameOf=p=>String(p.name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,''),flavorOf=p=>{const n=nameOf(p);if(n.includes('frutasvermelhas'))return'frutas_vermelhas';if(n.includes('morango'))return'morango';if(n.includes('nutell')||n.includes('nutel'))return'nutella';if(n.includes('ovomaltine'))return'ovomaltine';return'';},score=p=>(p.deleted===true?0:10)+(p.available===false?0:100)+(managedProducts[p.id]?1000:0)+(Number(p.updatedAt||0)/1e12);products.forEach(p=>{if(categoryOf(p)!=='milkshake')return;const flavor=flavorOf(p);if(!flavor)return;const current=winnerByFlavor.get(flavor);if(!current||score(p)>score(current))winnerByFlavor.set(flavor,p);});return products.filter(p=>{if(categoryOf(p)!=='milkshake')return true;const flavor=flavorOf(p);return !flavor||winnerByFlavor.get(flavor)===p;}).map(p=>{if(categoryOf(p)!=='milkshake')return p;const name=String(p.name||'').replace(/nutela/ig,'Nutella').replace(/330\s*ml/ig,'300 ml');return {...p,name};});}
-        function allManagedProducts() { const source=[...catalogDefaults,...collectCatalogDefaults()],unique=[];source.forEach(x=>{if(x&&!unique.some(p=>p.id===x.id))unique.push(x);});const list=unique.map(x=>({...x,...(managedOverrides[x.id]||{}),deleted:deletedProducts[x.id]===true || managedOverrides[x.id]?.deleted===true}));Object.entries(managedProducts).forEach(([id,x])=>{if(!list.some(p=>p.id===id))list.push({id,...x,...(managedOverrides[id]||{}),deleted:deletedProducts[id]===true || managedOverrides[id]?.deleted===true});});return deduplicateMilkShakeProducts(list.filter(p=>!isPermanentlyRemovedDuploNana(p))); }
+        function allManagedProducts() { const source=[...catalogDefaults,...collectCatalogDefaults()],unique=[];source.forEach(x=>{if(x&&!unique.some(p=>p.id===x.id))unique.push(x);});const list=unique.map(x=>({...x,...(managedProducts[x.id]||{}),...(managedOverrides[x.id]||{}),deleted:deletedProducts[x.id]===true || managedOverrides[x.id]?.deleted===true}));Object.entries(managedProducts).forEach(([id,x])=>{if(!list.some(p=>p.id===id))list.push({id,...x,...(managedOverrides[id]||{}),deleted:deletedProducts[id]===true || managedOverrides[id]?.deleted===true});});return deduplicateMilkShakeProducts(list.filter(p=>!isPermanentlyRemovedDuploNana(p))); }
         function categoryLabel(id){return allManagedCategories().find(c=>c.id===id)?.name||id;}
         function ensureDynamicCategory(id){const c=allManagedCategories().find(x=>x.id===id);if(!c||c.deleted)return null;let section=document.getElementById(id);if(!section){let host=document.getElementById('dynamicCategorySections');if(!host)return null;section=document.createElement('section');section.id=id;section.className='category-section';section.innerHTML='<h3 class="category-title"></h3><div class="menu-grid"></div>';host.appendChild(section);let nav=document.querySelector('.categories-nav');if(nav&&!document.querySelector(`.category-tab[href="#${id}"]`)){const a=document.createElement('a');a.href='#'+id;a.className='category-tab';a.innerText=c.name;a.onclick=()=>setActiveTab(a);nav.appendChild(a);}}section.querySelector('.category-title').innerText=c.name;return section;}
         function applyManagedCategories(){allManagedCategories().forEach(c=>{const tab=document.querySelector(`.category-tab[href="#${c.id}"]`);const section=document.getElementById(c.id)||(!c.deleted?ensureDynamicCategory(c.id):null);if(tab)tab.innerText=c.name;if(section){section.querySelector('.category-title').innerText=c.name;section.style.display=c.deleted?'none':'';}if(tab)tab.style.display=c.deleted?'none':'';});}
@@ -2208,6 +2213,54 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
         function joinBytes(chunks) { const total = chunks.reduce((n, a) => n + a.length, 0), result = new Uint8Array(total); let at = 0; chunks.forEach(a => { result.set(a, at); at += a.length; }); return result; }
 
         function withPrinterTimeout(promise,ms,message){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);}
+        function attachBluetoothPrinterDevice(device){
+            bluetoothPrinterDevice=device;
+            if(device.__burguilaPrinterDisconnectHandler)return;
+            const handler=()=>{
+                if(bluetoothPrinterDevice!==device)return;
+                printerConnection=null;printerCharacteristic=null;
+                if(printerMode==='bluetooth'){
+                    renderPrinterStatus('Bluetooth caiu. Tentando reconectar enquanto o navegador estiver aberto…','');
+                    scheduleBluetoothReconnect();
+                }
+            };
+            device.addEventListener('gattserverdisconnected',handler);
+            device.__burguilaPrinterDisconnectHandler=handler;
+        }
+        async function connectBluetoothPrinterDevice(device){
+            if(bluetoothConnectInProgress)return;
+            if(!device?.gatt)throw new Error('Este dispositivo não oferece conexão Bluetooth BLE para impressão.');
+            bluetoothConnectInProgress=true;attachBluetoothPrinterDevice(device);
+            try{
+                const server=device.gatt.connected?device.gatt:await withPrinterTimeout(device.gatt.connect(),8000,'A impressora não respondeu. Confira se está ligada e próxima.');
+                const services=await withPrinterTimeout(server.getPrimaryServices(),8000,'A impressora conectou, mas não informou serviços BLE de impressão.');
+                let characteristic=null;
+                for(const service of services){for(const c of await service.getCharacteristics()){if(c.properties.write||c.properties.writeWithoutResponse){characteristic=c;break;}}if(characteristic)break;}
+                if(!characteristic)throw new Error('Não encontrei uma porta de escrita ESC/POS nessa impressora Bluetooth.');
+                printerConnection=device;printerCharacteristic=characteristic;printerMode='bluetooth';
+                localStorage.setItem('burguilaPrinterMode','bluetooth');localStorage.setItem('burguilaPrinterBluetoothDeviceId',device.id||'');
+                bluetoothReconnectAttempts=0;if(bluetoothReconnectTimer){clearTimeout(bluetoothReconnectTimer);bluetoothReconnectTimer=null;}
+                renderPrinterStatus('Bluetooth conectado. A conexão será mantida e reconectada enquanto o navegador estiver aberto.','ok');checkPendingPrints();
+            }finally{bluetoothConnectInProgress=false;}
+        }
+        function scheduleBluetoothReconnect(){
+            if(printerMode!=='bluetooth'||!bluetoothPrinterDevice||(printerConnection&&bluetoothPrinterDevice.gatt?.connected)||bluetoothReconnectTimer)return;
+            const delays=[1500,3000,6000,10000,15000],delay=delays[Math.min(bluetoothReconnectAttempts,delays.length-1)];
+            bluetoothReconnectTimer=setTimeout(async()=>{bluetoothReconnectTimer=null;if(printerMode!=='bluetooth'||!bluetoothPrinterDevice)return;bluetoothReconnectAttempts++;try{await connectBluetoothPrinterDevice(bluetoothPrinterDevice);}catch(error){printerConnection=null;printerCharacteristic=null;renderPrinterStatus('Impressora Bluetooth desconectada. Continuarei tentando reconectar, mesmo com o navegador minimizado.','');scheduleBluetoothReconnect();}},delay);
+        }
+        async function restoreBluetoothPrinter(){
+            if(printerMode!=='bluetooth'||bluetoothPrinterDevice||!navigator.bluetooth?.getDevices)return;
+            try{
+                const allowed=await navigator.bluetooth.getDevices(),savedId=localStorage.getItem('burguilaPrinterBluetoothDeviceId');
+                const device=allowed.find(d=>savedId&&d.id===savedId)||(allowed.length===1?allowed[0]:null);
+                if(!device){renderPrinterStatus('Impressora não reconectada. Toque em “Conectar Bluetooth” para selecioná-la novamente.','');return;}
+                attachBluetoothPrinterDevice(device);await connectBluetoothPrinterDevice(device);
+            }catch(error){renderPrinterStatus('Impressora salva. Tentando reconectar…','');scheduleBluetoothReconnect();}
+        }
+        document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&printerMode==='bluetooth'){if(!bluetoothPrinterDevice)restoreBluetoothPrinter();else scheduleBluetoothReconnect();}});
+        window.addEventListener('focus',()=>{if(printerMode==='bluetooth'){if(!bluetoothPrinterDevice)restoreBluetoothPrinter();else scheduleBluetoothReconnect();}});
+        window.addEventListener('online',()=>{if(printerMode==='bluetooth'){if(!bluetoothPrinterDevice)restoreBluetoothPrinter();else scheduleBluetoothReconnect();}});
+
         async function connectThermalPrinter(mode) {
             try {
                 if (mode === 'bridge') {
@@ -2222,16 +2275,10 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
                     printerConnection = port; printerMode = 'serial'; localStorage.setItem('burguilaPrinterMode', printerMode); renderPrinterStatus('Impressora USB/Serial conectada.', 'ok'); checkPendingPrints(); return;
                 }
                 if (mode === 'bluetooth') {
-                    if (!navigator.bluetooth) throw new Error('Bluetooth web nao disponivel. No Android, use Chrome e uma impressora BLE compativel.');
+                    if (!navigator.bluetooth) throw new Error('Bluetooth web não disponível. Use Chrome/Edge e uma impressora BLE compatível.');
                     const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb'] });
-                    if(!device.gatt)throw new Error('A MY-77799 selecionada não oferece Bluetooth BLE compatível com o navegador. Use a conexão PC/USB ou um aplicativo de impressão Bluetooth clássico.');
-                    const server = await withPrinterTimeout(device.gatt.connect(),8000,'A impressora não respondeu como Bluetooth BLE. A MY-77799 pode estar usando Bluetooth clássico, que o navegador não consegue acessar diretamente.');
-                    const services = await withPrinterTimeout(server.getPrimaryServices(),8000,'A impressora conectou, mas não informou serviços BLE de impressão.');
-                    let characteristic = null;
-                    for (const service of services) { for (const c of await service.getCharacteristics()) { if (c.properties.write || c.properties.writeWithoutResponse) { characteristic = c; break; } } if (characteristic) break; }
-                    if (!characteristic) throw new Error('Nao encontrei uma porta de escrita ESC/POS nessa impressora Bluetooth.');
-                    printerConnection = device; printerCharacteristic = characteristic; printerMode = 'bluetooth'; localStorage.setItem('burguilaPrinterMode', printerMode); renderPrinterStatus('Bluetooth conectado. Impressao automatica ativada.', 'ok');
-                    checkPendingPrints();
+                    if(!device.gatt)throw new Error('A impressora selecionada não oferece Bluetooth BLE compatível com o navegador.');
+                    await connectBluetoothPrinterDevice(device);
                 }
             } catch (error) { renderPrinterStatus(error.message || 'Nao foi possivel conectar a impressora.', 'error'); }
         }
