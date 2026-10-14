@@ -1066,6 +1066,7 @@ body .merchant-header,body .product-card,body .product-image-right,body .feature
 body .merchant-logo{box-shadow:0 0 0 5px var(--store-bg),0 7px 18px var(--store-shadow)!important}
 body .product-card:not(.unavailable):hover,body .featured-card:hover{box-shadow:0 10px 22px var(--store-shadow)!important}
 body .theme-preview{box-shadow:0 10px 24px var(--preview-shadow,transparent)!important}body .theme-preview-card{box-shadow:0 4px 12px var(--preview-shadow,transparent)!important}
+body.offers-only-view .burguila-promo-slider-wrap,body.offers-only-view .promo-ticker-container,body.offers-only-view #featuredProduct,body.offers-only-view .categories-nav,body.offers-only-view .menu-search,body.offers-only-view #menuSearchEmpty,body.offers-only-view .category-section:not(#promocoes){display:none!important}body.offers-only-view #promocoes{display:block!important}
 </style>
 </head>
 <body class="app-loading">
@@ -2955,11 +2956,16 @@ function openAdminPortal() {
             if (modal) modal.style.display = show ? 'flex' : 'none';
         }
         function scrollToMenuTop() {
+            document.body.classList.remove('offers-only-view');
+            document.querySelectorAll('.mobile-bottom-nav button').forEach(button=>button.classList.remove('active'));
+            document.querySelector('.mobile-bottom-nav button:first-child')?.classList.add('active');
             window.scrollTo({top:0, behavior:'smooth'});
         }
         function scrollToFeatured() {
             document.getElementById('featuredProduct')?.scrollIntoView({behavior:'smooth', block:'center'});
         }
+        function openOffersTab(){const search=document.getElementById('menuSearch');if(search){search.value='';const empty=document.getElementById('menuSearchEmpty');if(empty)empty.style.display='none';}applyManagedCatalog();const section=document.getElementById('promocoes'),visibleCards=section?[...section.querySelectorAll('.product-card')].filter(card=>card.style.display!=='none'):[];if(!section||!visibleCards.length){document.body.classList.remove('offers-only-view');alert('Nenhuma promoção exclusiva está disponível no momento.');return;}document.body.classList.add('offers-only-view');document.querySelectorAll('.mobile-bottom-nav button').forEach(button=>button.classList.remove('active'));document.querySelector('.mobile-bottom-nav button:nth-child(3)')?.classList.add('active');document.querySelectorAll('.category-tab').forEach(tab=>tab.classList.remove('active'));document.querySelector('.category-tab[href="#promocoes"]')?.classList.add('active');section.scrollIntoView({behavior:'smooth',block:'start'});}
+
         function openCustomerProfile() {
             const data=JSON.parse(localStorage.getItem('burguilaCustomerProfile')||'{}');
             const name=document.getElementById('profileName'),phone=document.getElementById('profilePhone'),address=document.getElementById('profileAddress');
@@ -3021,7 +3027,7 @@ function openAdminPortal() {
     <nav class="mobile-bottom-nav" aria-label="Navegação do cardápio">
         <button type="button" class="active" onclick="scrollToMenuTop()"><span>⌂</span>Início</button>
         <button type="button" onclick="openCustomerTracking()"><span>📦</span>Pedidos</button>
-        <button type="button" onclick="scrollToFeatured()"><span>🔥</span>Ofertas</button>
+        <button type="button" onclick="openOffersTab()"><span>🔥</span>Ofertas</button>
         <button type="button" onclick="openCustomerProfile()"><span>👤</span>Perfil</button>
     </nav>
     <button class="driver-float" onclick="openDriverPortal()">🛵 Área do entregador</button>
