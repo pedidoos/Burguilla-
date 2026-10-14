@@ -1067,6 +1067,7 @@ body .merchant-logo{box-shadow:0 0 0 5px var(--store-bg),0 7px 18px var(--store-
 body .product-card:not(.unavailable):hover,body .featured-card:hover{box-shadow:0 10px 22px var(--store-shadow)!important}
 body .theme-preview{box-shadow:0 10px 24px var(--preview-shadow,transparent)!important}body .theme-preview-card{box-shadow:0 4px 12px var(--preview-shadow,transparent)!important}
 body.offers-only-view .burguila-promo-slider-wrap,body.offers-only-view .promo-ticker-container,body.offers-only-view #featuredProduct,body.offers-only-view .categories-nav,body.offers-only-view .menu-search,body.offers-only-view #menuSearchEmpty,body.offers-only-view .category-section:not(#promocoes){display:none!important}body.offers-only-view #promocoes{display:block!important}
+.catalog-load-error{display:none;margin:18px 12px;padding:16px;text-align:center;border:1px solid #c94b4b55;border-radius:12px;background:#c94b4b12;color:var(--store-text,#333)}.catalog-load-error button{margin-top:8px;padding:10px 14px;border:0;border-radius:8px;background:var(--store-primary,#b88c2b);color:var(--store-primary-text,#fff);font-weight:800}
 </style>
 </head>
 <body class="app-loading">
@@ -1599,17 +1600,21 @@ initPromoSwiper();
         let appOpeningRevealTimer=null;
         const catalogCoreParts=['settings','overrides','products','categories'];
         let catalogRevealTimer=null, cachedCatalogRevision='', remoteCatalogRevision=null;
+        let catalogSuccessfullyRendered=false,catalogRecoveryStarted=false;
         function revealAppOpening(){if(appOpeningRevealTimer)clearTimeout(appOpeningRevealTimer);const remaining=Math.max(0,APP_OPENING_MIN_MS-(Date.now()-appOpeningStartedAt));appOpeningRevealTimer=setTimeout(()=>document.body?.classList.remove('app-loading'),remaining);}
         function revealCurrentCatalog(){if(catalogRevealTimer)clearTimeout(catalogRevealTimer);revealAppOpening();}
         function loadManagedCache(){try{localStorage.removeItem('burguilaCatalogCache');cachedCatalogRevision='';}catch(e){console.warn('Não foi possível limpar o cache antigo do catálogo',e);}}
         function saveManagedCache(){try{localStorage.setItem('burguilaCatalogCache',JSON.stringify({version:CATALOG_CACHE_VERSION,revision:String(managedSettings.catalogRevision||cachedCatalogRevision||'legacy'),settings:managedSettings,overrides:managedOverrides,products:managedProducts,inventory:managedInventory,categories:managedCategories,deleted:deletedProducts}));}catch(e){console.warn('Não foi possível salvar cache do catálogo',e);}}
         function touchCatalogRevision(){if(!auth||!auth.currentUser)return Promise.resolve();const revision=String(Date.now());managedSettings.catalogRevision=revision;return db.ref('storeSettings/catalogRevision').set(revision);}
         function markCatalogPartLive(part){catalogLiveParts[part]=true;if(catalogCoreParts.every(part=>catalogLiveParts[part])){try{localStorage.removeItem('burguilaCatalogCache');}catch(e){}saveManagedCache();revealCurrentCatalog();}}
+        function showCatalogLoadError(){let box=document.getElementById('catalogLoadError');if(!box){box=document.createElement('div');box.id='catalogLoadError';box.className='catalog-load-error';box.innerHTML='<p>Não foi possível sincronizar o cardápio agora.</p><button type="button" onclick="location.reload()">Tentar carregar novamente</button>';document.getElementById('menuSearchEmpty')?.insertAdjacentElement('afterend',box);}if(box)box.style.display='block';}
+        async function recoverCatalogViaRest(){if(catalogRecoveryStarted||catalogSuccessfullyRendered)return;catalogRecoveryStarted=true;try{const base=String(firebaseConfig.databaseURL||'').replace(/\/+$/,''),paths=['storeSettings','menuOverrides','menuProducts','menuCategories','inventory','deletedProducts'],values=await Promise.all(paths.map(async path=>{const response=await fetch(base+'/'+path+'.json',{cache:'no-store'});if(!response.ok)throw new Error('catalog read failed');return response.json();}));const [settings,overrides,products,categories,inventory,deleted]=values;if(!products||!Object.keys(products).length)throw new Error('empty catalog');managedSettings=settings||{};managedOverrides=overrides||{};managedProducts=products||{};managedCategories=categories||{};managedInventory=inventory||{};deletedProducts=deleted||{};catalogCoreParts.forEach(part=>catalogLiveParts[part]=true);catalogLiveParts.inventory=true;catalogLiveParts.deleted=true;applyPublicSettings();applyManagedCatalog();if(!catalogSuccessfullyRendered)throw new Error('catalog render incomplete');document.getElementById('catalogLoadError')?.remove();}catch(e){console.error('Falha ao recuperar o cardápio público.',e);showCatalogLoadError();}finally{catalogRecoveryStarted=false;}}
         function initManagementData() { if(!firebaseConfigured || !db) return;
             catalogDefaults=collectCatalogDefaults();
             loadManagedCache();
             db.ref('storeSettings/catalogRevision').once('value').then(s=>{remoteCatalogRevision=s.exists()?String(s.val()||'legacy'):'legacy';}).catch(()=>{remoteCatalogRevision='';});
             setTimeout(()=>{if(document.body?.classList.contains('app-loading'))revealAppOpening();},3500);
+            setTimeout(()=>{if(!catalogSuccessfullyRendered)recoverCatalogViaRest();},8000);
             db.ref('storeSettings').on('value', s=>{ managedSettings=s.val()||{}; saveManagedCache(); markCatalogPartLive('settings'); applyPublicSettings(); renderSettingsForm(); renderPrintEditor(); });
             db.ref('menuOverrides').on('value', s=>{ managedOverrides=s.val()||{}; saveManagedCache(); markCatalogPartLive('overrides'); if(catalogCoreParts.every(part=>catalogLiveParts[part]))applyManagedCatalog(); renderManagementProducts(); renderManagementPromotions(); });
             db.ref('menuProducts').on('value', s=>{ managedProducts=s.val()||{}; saveManagedCache(); markCatalogPartLive('products'); if(catalogCoreParts.every(part=>catalogLiveParts[part]))applyManagedCatalog(); renderManagementProducts(); renderManagementPromotions(); });
@@ -1701,6 +1706,8 @@ initPromoSwiper();
             renderManagementPromotions();
             refreshPublicPromotionVisibility();
             hideEmptyPublicCategories();
+            catalogSuccessfullyRendered=true;
+            document.getElementById('catalogLoadError')?.remove();
             revealInitialCatalog();
         }
         function isPickupSelected(){return selectedFulfillment==='pickup'||document.getElementById('fulfillmentPickup')?.classList.contains('selected');}
