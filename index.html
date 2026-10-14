@@ -1412,6 +1412,7 @@ body.offers-only-view .burguila-promo-slider-wrap,body.offers-only-view .promo-t
     </div>
 
     <script>
+        function safeStorageGet(storageName,key,fallback=''){try{return window[storageName]?.getItem(key)??fallback;}catch(e){console.warn('Armazenamento local indisponível; usando valor padrão.',e);return fallback;}}
         let promoSwiper=null,promoDefaultSlides=[],promoSwiperLoadAttempts=0;
 function initPromoSwiper(){const el=document.querySelector('.burguilaPromoSlider');if(!el)return;if(typeof Swiper==='undefined'){if(promoSwiperLoadAttempts++<10)setTimeout(initPromoSwiper,500);return;}promoSwiperLoadAttempts=0;if(promoSwiper){promoSwiper.destroy(true,true);promoSwiper=null;}if(el.querySelectorAll('.swiper-slide').length<2)return;promoSwiper=new Swiper(el,{slidesPerView:1,loop:true,speed:850,autoplay:{delay:3800,disableOnInteraction:false,pauseOnMouseEnter:false,waitForTransition:true},pagination:{el:'.burguilaPromoSlider .swiper-pagination',clickable:true},navigation:{nextEl:'.burguilaPromoSlider .swiper-button-next',prevEl:'.burguilaPromoSlider .swiper-button-prev'}});promoSwiper.autoplay?.start();}
 initPromoSwiper();
@@ -1429,7 +1430,13 @@ initPromoSwiper();
         const firebaseConfigured = Boolean(firebaseConfig.apiKey && !String(firebaseConfig.apiKey).startsWith('COLE_') && firebaseConfig.projectId && !String(firebaseConfig.projectId).startsWith('SEU_'));
         let db = null;
         let auth = null;
-        if (firebaseConfigured) { firebase.initializeApp(firebaseConfig); db = firebase.database(); auth = firebase.auth(); }
+        if (firebaseConfigured && window.firebase && typeof window.firebase.initializeApp === 'function') {
+            try {
+                if (!window.firebase.apps?.length) window.firebase.initializeApp(firebaseConfig);
+                db = window.firebase.database();
+                auth = window.firebase.auth();
+            } catch(e) { console.error('Firebase SDK indisponível; o catálogo público tentará carregar pela API HTTPS.',e); }
+        } else { console.warn('Firebase SDK não carregou; o catálogo público tentará carregar pela API HTTPS.'); }
 
         const availableBurgers = [{"name": "1° Burgue Flash", "price": 20}, {"name": "3° Burgue Especial", "price": 27}, {"name": "4° Orions Burgue", "price": 28}, {"name": "5° Nanaburgue", "price": 28}, {"name": "6° Agridoce Especial", "price": 32}, {"name": "7° Burgue Duplo", "price": 32}, {"name": "8° B-Burgue", "price": 34}, {"name": "9° Burgão", "price": 35}, {"name": "10° Burgue Top", "price": 37}, {"name": "11° Burguila", "price": 37}, {"name": "12° Burgue Faminto", "price": 47}];
 
@@ -1469,7 +1476,7 @@ initPromoSwiper();
         let bluetoothReconnectTimer = null;
         let bluetoothReconnectAttempts = 0;
         let bluetoothConnectInProgress = false;
-        let printerMode = localStorage.getItem('burguilaPrinterMode') || '';
+        let printerMode = safeStorageGet('localStorage','burguilaPrinterMode','');
         const printJobsInProgress = new Set();
         const printJobsCompleted = new Set();
         let adminOrdersCache = {};
@@ -1494,8 +1501,8 @@ initPromoSwiper();
         let adminSessionLastActivity = 0;
         let adminSessionTimer = null;
         let adminActivityBound = false;
-        let adminSessionId = sessionStorage.getItem('burguilaAdminSessionId') || ('s_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
-        let customerTrackingToken = localStorage.getItem('burguilaLastTrackingToken') || '';
+        let adminSessionId = safeStorageGet('sessionStorage','burguilaAdminSessionId','') || ('s_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
+        let customerTrackingToken = safeStorageGet('localStorage','burguilaLastTrackingToken','');
         let customerTrackingListener = null;
         let customerTrackingListeners = {};
         let customerTrackingOrders = {};
@@ -1505,7 +1512,7 @@ initPromoSwiper();
         let currentCustomerPortalSection = 'active';
         let orderSending = false;
         let customerTrackingStatuses = {};
-        let lastCustomerTrackingStatus = localStorage.getItem('burguilaLastTrackingStatus') || '';
+        let lastCustomerTrackingStatus = safeStorageGet('localStorage','burguilaLastTrackingStatus','');
         let notificationAudioContext = null;
         let customerConfirmationInitialized = false;
         let driverPortalSession = null;
@@ -1525,26 +1532,33 @@ initPromoSwiper();
         function hideInitialCatalog(){document.body.classList.remove('catalog-ready');document.querySelectorAll('.category-section,.categories-nav,#promoSliderWrapper,.promo-ticker-container,.burguila-promo-slider-wrap').forEach(el=>el.classList.add('initial-catalog-hidden'));}
         function revealInitialCatalog(){document.body.classList.add('catalog-ready');document.querySelectorAll('.category-section,.categories-nav,#promoSliderWrapper,.promo-ticker-container,.burguila-promo-slider-wrap').forEach(el=>el.classList.remove('initial-catalog-hidden'));}
         window.addEventListener('DOMContentLoaded', () => {
-            hideInitialCatalog();
-            cleanPublicPromoDuplicates();
-            ensurePromoCustomizationCards();
-            if (auth) auth.onAuthStateChanged(user => {
-                stopRealtimeSync();
-                if (user) {
-                    initRealtimeSync();
-                    renderPrinterStatus();
-                    if (printerMode === 'bluetooth') restoreBluetoothPrinter();
-                    initKitchenData();
-                    initPermissionsPreview();
-                    initDeliveryData();
-                    initCustomerConfirmationListener();
-                    initCustomerActionListener();
-                    initDriverActionListener();
-                    initCustomerRegistry();
-                    initReviewsRegistry();
-                }
-            });
-            if (firebaseConfigured) initManagementData(); else { revealAppOpening(); }
+            try { hideInitialCatalog(); } catch(e) { console.error('Falha ao preparar o catálogo.',e); }
+            try { cleanPublicPromoDuplicates(); } catch(e) { console.error('Falha ao limpar promoções antigas.',e); }
+            try { ensurePromoCustomizationCards(); } catch(e) { console.error('Falha ao preparar promoções.',e); }
+            if (auth) {
+                try { auth.onAuthStateChanged(user => {
+                    try {
+                        stopRealtimeSync();
+                        if (user) {
+                            initRealtimeSync();
+                            renderPrinterStatus();
+                            if (printerMode === 'bluetooth') restoreBluetoothPrinter();
+                            initKitchenData();
+                            initPermissionsPreview();
+                            initDeliveryData();
+                            initCustomerConfirmationListener();
+                            initCustomerActionListener();
+                            initDriverActionListener();
+                            initCustomerRegistry();
+                            initReviewsRegistry();
+                        }
+                    } catch(e) { console.error('Falha ao iniciar recursos administrativos.',e); }
+                }); } catch(e) { console.error('Falha na autenticação; mantendo carregamento público.',e); }
+            }
+            try { if (firebaseConfigured) initManagementData(); else { revealAppOpening(); } }
+            catch(e) { console.error('Falha ao iniciar a sincronização do catálogo.',e); showCatalogLoadError(); }
+            setTimeout(() => { if (!catalogSuccessfullyRendered) recoverCatalogViaRest(); }, 1200);
+            setTimeout(() => { if (!catalogSuccessfullyRendered) showCatalogLoadError(); }, 16000);
         });
 
         // Sincronização em tempo real: só é ativada depois do login administrativo.
@@ -1698,17 +1712,21 @@ initPromoSwiper();
             const newProductCards=products.filter(p=>!existingProductIds.has(String(p.id))&&managedProducts[p.id]);
             newProductCards.forEach(p=>{const section=ensureDynamicCategory(p.category)||document.getElementById('hamburgueres');const grid=section?.querySelector('.menu-grid');if(!grid)return;const card=document.createElement('div');card.className='product-card';card.dataset.productId=p.id;card.innerHTML=`<div class="product-info-left"><div class="product-name"></div><div class="product-desc"></div><div class="product-price"></div></div><div class="product-image-right"><img alt=""></div>`;grid.appendChild(card);});
             if(newProductCards.length){applyManagedCatalog();return;}
-            sortPublicProductCards();
-            applyStoreAvailability();
-            renderFeaturedProductSelect();
-            cleanPublicPromoDuplicates();
-            ensurePromoCustomizationCards();
-            renderManagementPromotions();
-            refreshPublicPromotionVisibility();
-            hideEmptyPublicCategories();
+            try {
+                sortPublicProductCards();
+                applyStoreAvailability();
+                cleanPublicPromoDuplicates();
+                refreshPublicPromotionVisibility();
+                hideEmptyPublicCategories();
+            } catch(e) { console.error('Falha em ajustes complementares do catálogo; exibindo os produtos sincronizados.',e); }
             catalogSuccessfullyRendered=true;
             document.getElementById('catalogLoadError')?.remove();
             revealInitialCatalog();
+            try {
+                renderFeaturedProductSelect();
+                ensurePromoCustomizationCards();
+                renderManagementPromotions();
+            } catch(e) { console.error('Falha em recursos complementares de promoções; catálogo público mantido.',e); }
         }
         function isPickupSelected(){return selectedFulfillment==='pickup'||document.getElementById('fulfillmentPickup')?.classList.contains('selected');}
         function getCurrentDeliveryFee(){if(isPickupSelected())return 0;if(String(selectedFulfillment)!=='delivery')return 0;const zoneSelect=document.getElementById('deliveryZoneSelect'),selectedOption=zoneSelect?.selectedOptions?.[0],optionFee=selectedOption?.dataset?.fee;if(selectedOption?.value&&optionFee!==undefined)return Math.max(0,Number(optionFee));const liveMode=deliveryMode||managedSettings?.deliveryMode||'fixed',liveZones=deliveryZonesData||managedSettings?.deliveryZones||{};if(liveMode==='free')return 0;if(liveMode==='zones'||liveZones[selectedDeliveryZone])return Math.max(0,Number(liveZones[selectedDeliveryZone]?.fee||0));const configured=deliveryFixedFee!==null&&deliveryFixedFee!==undefined?deliveryFixedFee:(managedSettings?.deliveryFixedFee!==undefined?managedSettings.deliveryFixedFee:(managedSettings?.deliveryFee!==undefined?managedSettings.deliveryFee:deliveryFee));return Math.max(0,Number(configured||0));}
