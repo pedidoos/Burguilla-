@@ -2088,7 +2088,7 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                 if(cfg.align==='right'&&chunks.length===1)return chunks[0].padStart(width,' ').slice(-width);
                 return chunks.join('\n');
             };
-            const money=value=>moneyPrinter(value);
+            const money=value=>moneyPrinter(value),swapExtra=promotionJuiceSwapExtraTotal(order);
             const detailedKitchen=type==='kitchen';
             if(cfg.headerText)add(cfg.headerText);
             if(cfg.showStore)add(managedSettings.name||'BURGUILA');
@@ -2102,7 +2102,7 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
             if(order.fulfillment&&detailedKitchen)add('FORMA: '+(order.fulfillment==='pickup'?'RETIRADA':'ENTREGA'));
             if(separator)add(separator);
             if(cfg.showItems){
-                const orderItems=order.items||[];orderItems.forEach((item,index)=>{
+                const orderItems=(order.items||[]).slice().sort((a,b)=>Number(isBurgerReceiptCategory(b?.category))-Number(isBurgerReceiptCategory(a?.category)));orderItems.forEach((item,index)=>{
                     const qty=Number(item.qty||1), details=item.details||{};
                     let title=item.name||'Item';
                     if(item.isManagedPromotion)title=orderReceiptName(item,item.name,'');
@@ -2112,7 +2112,7 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                     else if(item.isComboCasal&&(details.sodaName||details.juiceName))title=orderReceiptName(item,details.burger1||item.lancheBase||item.name,details.sauce||undefined);
                     else title=orderReceiptName(item,item.isLancheCustom?(item.lancheBase||item.name):item.name);
                     add(qty+'x '+title);
-                    if(item.isManagedPromotion){if(details.drinkName)add('  '+(details.drinkIsJuice?(details.juiceVolume==='500ml'?'SUCO 500ML: ':'SUCO 1L: '):(details.drinkType==='liter'?'REFRIGERANTE 1L: ':'REFRIGERANTE LATA: '))+details.drinkName);if(Number(details.juiceSwapExtra||0)>0)add('  ADICIONAL TROCA POR SUCO: R$ '+Number(details.juiceSwapExtra).toFixed(2).replace('.',','));(details.burgerSauces||[]).forEach(choice=>add('  '+orderReceiptName({},choice.burger,choice.sauce)));}
+                    if(item.isManagedPromotion){(details.burgerSauces||[]).forEach(choice=>add('  '+orderReceiptName({},choice.burger,choice.sauce)));if(details.drinkName)add('  '+(details.drinkIsJuice?orderDrinkDisplayName(details):(details.drinkType==='liter'?'REFRIGERANTE 1L: ':'REFRIGERANTE LATA: ')+details.drinkName));}
                     else if(item.isFomeGrande&&details.sauces?.length){['Burgue Top','Flash','Burgue Especial'].forEach((name,i)=>{if(details.sauces[i])add('  '+orderReceiptName({},name,details.sauces[i]));});}
                     else if(item.isDuploNano&&details.sauces?.length){if(details.sauces[0])add('  '+orderReceiptName({},'Burgue Duplo',details.sauces[0]));if(details.sauces[1])add('  '+orderReceiptName({},'Nana Burgue',details.sauces[1]));}
                     if(detailedKitchen&&item.category)add('  CATEGORIA: '+item.category);
@@ -2128,7 +2128,7 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                         if(details.burger2&&details.burger2!=='Nenhum')add('  LANCHE 2: '+details.burger2);
                         if(Number(details.potatoes||0)>0)add('  BATATA: '+details.potatoes+' unidade(s)');
                         if(details.sodaName)add('  REFRIGERANTE: '+details.sodaName);
-                        else if(details.juiceName)add('  SUCO 500ML: '+details.juiceName);
+                        else if(details.juiceName)add('  '+orderDrinkDisplayName({drinkName:details.juiceName,drinkIsJuice:true,juiceVolume:'500ml'}));
                         else if(Number(details.sodas||0)>0)add('  REFRIGERANTE: '+details.sodas+' unidade(s)');
                     }
                     if((cfg.showAddons||detailedKitchen)&&item.addonsDetails?.length)add('  ADICIONAIS: '+item.addonsDetails.map(a=>a.name||a).join(', '));
@@ -2136,16 +2136,16 @@ function renderKitchenQueue(){const box=document.getElementById('kitchenProducti
                     if((cfg.showRemovals||detailedKitchen)&&item.removalsDetails?.length)add('  REMOVER: '+item.removalsDetails.map(a=>a.name||a).join(', '));
                     else if(detailedKitchen)add('  REMOCOES: nenhuma');
                     if((cfg.showNotes||detailedKitchen)&&item.kitchenNote)add('  OBSERVACAO: '+item.kitchenNote);
-                    if(cfg.showTotals&&type==='dispatch')add('  VALOR ITEM: '+money(Number(item.price||0)*qty));
                     if(index<orderItems.length-1)add('------------------------------');else add('');
                 });
             }
             if(cfg.showTotals||detailedKitchen){
                 if(separator)add(separator);
-                add('SUBTOTAL: '+money(order.subtotal));
+                add('SUBTOTAL: '+money(orderBaseSubtotal(order)));
+                if(swapExtra>0)add('ACRESCIMO TROCA POR SUCO: '+money(swapExtra));
                 add('ENTREGA:  '+money(order.delivery));
-                if(order.discount)add('DESCONTO: '+money(order.discount));
-                add('TOTAL:    '+money(order.total));
+                const discount=Number(order.couponDiscount||order.discount||0);if(discount>0)add('DESCONTO: '+money(discount));
+                add('TOTAL GERAL: '+money(order.total));
             }
             if(cfg.footerText)add(cfg.footerText);
             return raw.map(format).join('\n').replace(/\n{3,}/g,'\n\n').trim();
@@ -2176,36 +2176,49 @@ function previewTestReceipt(){showReceiptPreview(printerTestOrder());}
                 .replace(/[^\x20-\x7E\n\r]/g, '');
         }
         function moneyPrinter(value) { return 'R$ ' + Number(value || 0).toFixed(2).replace('.', ','); }
-        function orderReceiptName(item,sourceName,sauceOverride){const source=String(sourceName??item?.name??''),match=source.match(/\[\s*molho:?\s*([^\]]+)\]/i),base=source.replace(/\s*\[\s*molho:?\s*[^\]]*\]/ig,'').trim(),sauce=sauceOverride!==undefined?String(sauceOverride||'').trim():String(item?.details?.sauce||item?.sauce||match?.[1]||'').trim();return base+(sauce?' [ '+sauce.toLocaleUpperCase('pt-BR')+' ]':'');}
+        function orderReceiptName(item,sourceName,sauceOverride){const source=String(sourceName??item?.name??''),match=source.match(/\[\s*molho:?\s*([^\]]+)\]/i),base=source.replace(/\s*\[\s*molho:?\s*[^\]]*\]/ig,'').trim().replace(/^\s*\d+[°º]\s*/,'').trim(),sauce=sauceOverride!==undefined?String(sauceOverride||'').trim():String(item?.details?.sauce||item?.sauce||match?.[1]||'').trim();return base+(sauce?' [ '+sauce.toLocaleUpperCase('pt-BR')+' ]':'');}
+        function orderDrinkDisplayName(details){const raw=String(details?.drinkName||'').trim();if(!details?.drinkIsJuice)return raw;const volume=details.juiceVolume==='500ml'?'500 ml':'1 litro',base=raw.replace(/\s*(?:[-–—]\s*)?(?:\(?\s*(?:500\s*ml|0[.,]5\s*l|1000\s*ml|1\s*l(?:itro)?)\s*\)?)\s*$/i,'').trim()||raw,name=/^suco\b/i.test(base)?base:'Suco '+base;return name.replace(/\s+/g,' ')+' '+volume;}
+        function promotionJuiceSwapExtraTotal(order){return(Array.isArray(order?.items)?order.items:[]).reduce((sum,item)=>{if(!item?.isManagedPromotion)return sum;const extra=Number(item.details?.juiceSwapExtra||0),qty=Number(item.qty||1);return sum+(Number.isFinite(extra)&&extra>0&&Number.isFinite(qty)?extra*qty:0);},0);}
+        function orderBaseSubtotal(order){return Math.max(0,Number(order?.subtotal||0)-promotionJuiceSwapExtraTotal(order));}
+        function isBurgerReceiptCategory(category){const value=String(category||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();return /hamburg|burguer|burger/.test(value);}
         function orderWhatsAppText(order){
-            const items=order.items||[],subtotal=Number(order.subtotal||0),delivery=Number(order.delivery||0),discount=Number(order.couponDiscount||0),total=Number(order.total||0),pickup=order.fulfillment==='pickup';
-            const changeText=String(order.payment||'').replace(/^(Pix|Cartão|Dinheiro)/,'').trim();
-            const payment=String(order.payment||'').replace(/\s*\(.*\)$/,'');
-            let message=`🧾 *CUPOM DE PEDIDO #${order.orderId||''}* 🧾\n-------------------------------------------\n🍔 *BURGUILA*\n-------------------------------------------\n\n`;
+            const items=Array.isArray(order.items)?order.items:[],subtotal=orderBaseSubtotal(order),swapExtra=promotionJuiceSwapExtraTotal(order),delivery=Number(order.delivery||0),discount=Number(order.couponDiscount||order.discount||0),total=Number(order.total||0),pickup=order.fulfillment==='pickup';
+            const changeText=String(order.payment||'').replace(/^(Pix|Cartão|Dinheiro)/,'').trim(),payment=String(order.payment||'').replace(/\s*\(.*\)$/,'');
+            let message=`🧾 *CUPOM DE PEDIDO #${order.orderId||''}* 🧾\n🍔 *BURGUILA*\n\n`;
             message+=`👤 *CLIENTE:* ${order.clientName||''}\n📱 *CONTATO:* ${order.clientPhone||''}\n`;
             message+=pickup?`🏪 *RECEBIMENTO:* RETIRADA NA LOJA\n`:`📍 *ENDEREÇO:* ${order.address||''}\n`;
             message+=`\n💳 *PAGAMENTO:* ${payment}${changeText}\n-------------------------------------------\n📝 *ITENS DO PEDIDO*:\n\n`;
-            const categories=[...new Set(['Hambúrgueres','Combos','Adicionais','Refri',...items.map(item=>item.category)])];let printed=0;
+            const categories=[...new Set(items.map(item=>item?.category||'ITENS'))].sort((a,b)=>Number(isBurgerReceiptCategory(b))-Number(isBurgerReceiptCategory(a)));let printed=0;
             categories.forEach(cat=>{
-                const rows=items.filter(item=>item.category===cat);if(!rows.length)return;
-                message+=`*--- ${String(cat||'ITENS').toUpperCase()} ---*\n`;
+                const rows=items.filter(item=>(item?.category||'ITENS')===cat);if(!rows.length)return;
+                message+=`*--- ${String(cat).toUpperCase()} ---*\n`;
                 rows.forEach(item=>{
-                    const price=Number(item.price||0).toFixed(2).replace('.',','),qty=Number(item.qty||1),itemName=String(item.name||''),details=item.details||{};
+                    item=item||{};const qty=Number(item.qty||1),itemName=String(item.name||''),details=item.details||{};
                     const bracketValues=[...itemName.matchAll(/\[([^\]]+)\]/g)].map(m=>m[1].trim());
                     const duploMatch=itemName.match(/Molhos?:\s*Duplo\s*([^,\]]+),\s*Nana\s*([^\]]+)/i);
                     const duploDrink=details.drinkName||bracketValues.find(x=>!/molhos?:/i.test(x))||'';
                     const duploSauces=details.sauces?.length?details.sauces:[duploMatch?.[1]?.trim()||'',duploMatch?.[2]?.trim()||''];
-                    if(item.isManagedPromotion){message+=`${qty}x ${orderReceiptName(item,item.name,'')}\n`;if(details.drinkName){const drinkLabel=details.drinkIsJuice?(details.juiceVolume==='500ml'?'Suco 500 ml':'Suco 1 litro'):(details.drinkType==='liter'?'Refrigerante 1 litro':'Refrigerante em lata');message+=`   • ${drinkLabel}: ${details.drinkName}\n`;if(Number(details.juiceSwapExtra||0)>0)message+=`   • Acréscimo da troca: R$ ${Number(details.juiceSwapExtra).toFixed(2).replace('.',',')}\n`;}(details.burgerSauces||[]).forEach(choice=>message+=`   • ${orderReceiptName({},choice.burger,choice.sauce)}\n`);message+=`   (R$ ${price} total)\n`;}
-                    else if(item.isDuploNano||/duplo.*nan[ao]|nan[ao].*duplo/i.test(itemName)){message+=`${qty}x Combo Duplo & Nana\n`;if(duploSauces[0])message+=`   • ${orderReceiptName({},'Burgue Duplo',duploSauces[0])}\n`;if(duploSauces[1])message+=`   • ${orderReceiptName({},'Nana Burgue',duploSauces[1])}\n`;if(duploDrink)message+=`   • Refrigerante 1 litro: ${duploDrink}\n`;message+=`   (R$ ${price} total)\n`;}
-                    else if(item.isAgridoce){const drink=details.drinkName||bracketValues[0]||'',sauce=details.sauce||((bracketValues.find(x=>/molho/i.test(x))||'').replace(/^molho:?\s*/i,''));message+=`${qty}x ${orderReceiptName(item,'Combo Lançamento Agridoce Especial',sauce||undefined)}\n   • Refrigerante em lata: ${drink}\n   (R$ ${price} total)\n`;}
-                    else if(item.isFomeGrande){const sauces=details.sauces||[];message+=`${qty}x Combo Fome Grande\n`;[['Burgue Top',sauces[0]],['Flash',sauces[1]],['Burgue Especial',sauces[2]]].forEach(([name,sauce])=>{if(sauce)message+=`   • ${orderReceiptName({},name,sauce)}\n`;});if(details.drinkName)message+=`   • Refrigerante 1 litro: ${details.drinkName}\n`;message+=`   (R$ ${price} total)\n`;}
-                    else if(item.isComboCasal){const d=details,second=d.burger2==='Nenhum'?'Dispensado':d.burger2;if(d.sodaName||d.juiceName){message+=`${qty}x ${orderReceiptName(item,d.burger1||item.lancheBase||item.name,d.sauce||undefined)}\n   • + Batata frita\n   • + ${d.sodaName?'Refrigerante em lata: '+d.sodaName:'Suco 500 ml: '+(d.juiceName||'')}\n   (R$ ${price} total)\n`;}else{message+=`${qty}x Combo Casal ❤️\n`;if(d.burger1)message+=`   • Lanche 1: ${orderReceiptName({},d.burger1,d.sauce||undefined)}\n`;if(d.burger2&&d.burger2!=='Nenhum')message+=`   • Lanche 2: ${d.burger2}\n`;message+=`   • ${d.potatoes||0} Batata(s)\n   • ${d.sodas||0} Refri(s)\n   (R$ ${price} total)\n`;}}
-                    else if(item.isLancheCustom){message+=`${qty}x ${orderReceiptName(item,item.lancheBase||item.name)}\n`;(item.addonsDetails||[]).forEach(a=>message+=`   • + ${a.name||a}\n`);(item.removalsDetails||[]).forEach(r=>message+=`   • Sem ${r.name||r}\n`);if(item.kitchenNote)message+=`   • Observação: ${item.kitchenNote}\n`;message+=`   (R$ ${price} un.)\n`;}
-                    else{message+=`${qty}x ${orderReceiptName(item,item.name)}\n   (R$ ${price} un.)\n`;}
+                    if(item.isManagedPromotion){
+                        message+=`${qty}x ${orderReceiptName(item,item.name,'')}\n`;
+                        (details.burgerSauces||[]).forEach(choice=>message+=`   • ${orderReceiptName({},choice.burger,choice.sauce)}\n`);
+                        if(details.drinkName)message+=details.drinkIsJuice?`   • ${orderDrinkDisplayName(details)}\n`:`   • ${details.drinkType==='liter'?'Refrigerante 1 litro: ':'Refrigerante em lata: '}${details.drinkName}\n`;
+                    }
+                    else if(item.isDuploNano||/duplo.*nan[ao]|nan[ao].*duplo/i.test(itemName)){
+                        message+=`${qty}x Combo Duplo & Nana\n`;
+                        if(duploSauces[0])message+=`   • ${orderReceiptName({},'Burgue Duplo',duploSauces[0])}\n`;
+                        if(duploSauces[1])message+=`   • ${orderReceiptName({},'Nana Burgue',duploSauces[1])}\n`;
+                        if(duploDrink)message+=`   • Refrigerante 1 litro: ${duploDrink}\n`;
+                    }
+                    else if(item.isAgridoce){const drink=details.drinkName||bracketValues[0]||'',sauce=details.sauce||((bracketValues.find(x=>/molho/i.test(x))||'').replace(/^molho:?\s*/i,''));message+=`${qty}x ${orderReceiptName(item,'Combo Lançamento Agridoce Especial',sauce||undefined)}\n   • Refrigerante em lata: ${drink}\n`;}
+                    else if(item.isFomeGrande){const sauces=details.sauces||[];message+=`${qty}x Combo Fome Grande\n`;[['Burgue Top',sauces[0]],['Flash',sauces[1]],['Burgue Especial',sauces[2]]].forEach(([name,sauce])=>{if(sauce)message+=`   • ${orderReceiptName({},name,sauce)}\n`;});if(details.drinkName)message+=`   • Refrigerante 1 litro: ${details.drinkName}\n`;}
+                    else if(item.isComboCasal){const d=details,second=d.burger2==='Nenhum'?'Dispensado':d.burger2;if(d.sodaName||d.juiceName){message+=`${qty}x ${orderReceiptName(item,d.burger1||item.lancheBase||item.name,d.sauce||undefined)}\n   • + Batata frita\n   • + ${d.sodaName?'Refrigerante em lata: '+d.sodaName:orderDrinkDisplayName({drinkName:d.juiceName,drinkIsJuice:true,juiceVolume:'500ml'})}\n`;}else{message+=`${qty}x Combo Casal ❤️\n`;if(d.burger1)message+=`   • Lanche 1: ${orderReceiptName({},d.burger1,d.sauce||undefined)}\n`;if(d.burger2&&d.burger2!=='Nenhum')message+=`   • Lanche 2: ${d.burger2}\n`;message+=`   • ${d.potatoes||0} Batata(s)\n   • ${d.sodas||0} Refri(s)\n`;}}
+                    else if(item.isLancheCustom){message+=`${qty}x ${orderReceiptName(item,item.lancheBase||item.name)}\n`;(item.addonsDetails||[]).forEach(a=>message+=`   • + ${a.name||a}\n`);(item.removalsDetails||[]).forEach(r=>message+=`   • Sem ${r.name||r}\n`);if(item.kitchenNote)message+=`   • Observação: ${item.kitchenNote}\n`;}
+                    else message+=`${qty}x ${orderReceiptName(item,item.name)}\n`;
                     printed++;if(printed<items.length)message+='------------------------------\n';
                 });message+='\n';
             });
             message+=`-------------------------------------------\n💰 *SUBTOTAL:* R$ ${subtotal.toFixed(2).replace('.',',')}\n`;
+            if(swapExtra>0)message+=`🥤 *ACRÉSCIMO DA TROCA POR SUCO:* R$ ${swapExtra.toFixed(2).replace('.',',')}\n`;
             if(discount>0)message+=`🎟️ *DESCONTO (${order.couponCode||''}):* - R$ ${discount.toFixed(2).replace('.',',')}\n`;
             message+=pickup?`🏪 *RETIRADA:* Sem taxa de entrega\n`:`🚚 *TAXA DE ENTREGA:* R$ ${delivery.toFixed(2).replace('.',',')}${order.deliveryZone?' — '+order.deliveryZone:''}\n`;
             message+=`⭐ *TOTAL GERAL:* R$ ${total.toFixed(2).replace('.',',')}\n-------------------------------------------\n⏱️ *Tempo de espera: ${managedSettings.waitTime||40} minutos*\n\n🕒 _Obrigado pela preferência!_`;
