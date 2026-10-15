@@ -1595,6 +1595,23 @@ initPromoSwiper();
         function saveManagedCache(){try{localStorage.setItem('burguilaCatalogCache',JSON.stringify({version:CATALOG_CACHE_VERSION,revision:String(managedSettings.catalogRevision||cachedCatalogRevision||'legacy'),settings:managedSettings,overrides:managedOverrides,products:managedProducts,inventory:managedInventory,categories:managedCategories,deleted:deletedProducts}));}catch(e){console.warn('Não foi possível salvar cache do catálogo',e);}}
         function touchCatalogRevision(){if(!auth||!auth.currentUser)return Promise.resolve();const revision=String(Date.now());managedSettings.catalogRevision=revision;return db.ref('storeSettings/catalogRevision').set(revision);}
         function markCatalogPartLive(part){catalogLiveParts[part]=true;if(catalogCoreParts.every(part=>catalogLiveParts[part])){try{localStorage.removeItem('burguilaCatalogCache');}catch(e){}saveManagedCache();revealCurrentCatalog();}}
+        async function recoverCatalogFromPublicRest(){
+            const hasVisibleProduct=[...document.querySelectorAll('.category-section')].some(section=>section.style.display!=='none'&&[...section.querySelectorAll('.product-card')].some(card=>card.style.display!=='none'));
+            if(document.body.classList.contains('catalog-ready')&&hasVisibleProduct)return;
+            if(window.__burguilaCatalogRestRecoveryStarted)return;
+            window.__burguilaCatalogRestRecoveryStarted=true;
+            try{
+                const root=String(firebaseConfig.databaseURL||'').replace(/\/+$/,'');
+                if(!root)throw new Error('Firebase URL indisponível');
+                const readNode=async node=>{const response=await fetch(root+'/'+node+'.json?catalogRecovery='+Date.now(),{cache:'no-store'});if(!response.ok)throw new Error('Falha ao ler '+node);return response.json();};
+                const [settings,overrides,products,categories,deleted]=await Promise.all(['storeSettings','menuOverrides','menuProducts','menuCategories','deletedProducts'].map(readNode));
+                if(!products||typeof products!=='object'||!Object.keys(products).length)throw new Error('O catálogo público está vazio');
+                managedSettings=settings||{};managedOverrides=overrides||{};managedProducts=products||{};managedCategories=categories||{};deletedProducts=deleted||{};catalogDefaults=collectCatalogDefaults();
+                ['settings','overrides','products','categories'].forEach(part=>catalogLiveParts[part]=true);
+                saveManagedCache();applyPublicSettings();applyManagedCategories();applyManagedCatalog();revealInitialCatalog();
+                console.info('Catálogo recuperado pela leitura pública do Firebase.');
+            }catch(error){console.error('Não foi possível recuperar o catálogo público.',error);}
+        }
         function initManagementData() { if(!firebaseConfigured || !db) return;
             catalogDefaults=collectCatalogDefaults();
             loadManagedCache();
@@ -1606,6 +1623,7 @@ initPromoSwiper();
             db.ref('inventory').on('value', s=>{ managedInventory=s.val()||{}; saveManagedCache(); markCatalogPartLive('inventory'); if(catalogCoreParts.every(part=>catalogLiveParts[part]))applyManagedCatalog(); renderManagementStock(); });
             db.ref('menuCategories').on('value', s=>{ managedCategories=s.val()||{}; saveManagedCache(); markCatalogPartLive('categories'); applyManagedCategories(); if(catalogCoreParts.every(part=>catalogLiveParts[part]))applyManagedCatalog(); renderManagementCategories(); populateCategorySelect(); });
             db.ref('deletedProducts').on('value', s=>{ deletedProducts=s.val()||{}; saveManagedCache(); markCatalogPartLive('deleted'); if(catalogCoreParts.every(part=>catalogLiveParts[part]))applyManagedCatalog(); renderManagementProducts(); renderManagementPromotions(); });
+            setTimeout(()=>recoverCatalogFromPublicRest(),8000);
         }
         const defaultCategoryNames={promocoes:'Promoções Exclusivas',hamburgueres:'Hambúrgueres',porcoes:'Porções',sobremesas:'Sobremesas',latas:'Refrigerantes em Lata',litros:'Refrigerantes 1 Litro',sucos:'Sucos Naturais',combos:'Combos',adicionais:'Adicionais',refri:'Refri'};
         function allManagedCategories(){const list=Object.entries(defaultCategoryNames).map(([id,name])=>({id,name,...(managedCategories[id]||{})}));Object.entries(managedCategories).forEach(([id,x])=>{if(!list.some(c=>c.id===id))list.push({id,name:x.name||id,...x});});return list;}
